@@ -358,6 +358,72 @@ def index():
 
 
 
+@app.route('/member_usdt', methods=['GET', 'POST'])
+def member_usdt():
+    if 'display_name' in session :
+        if request.method == 'GET':
+            if request.args.get('method') == 'success':
+                dbs.member_usdt.update_one(
+                    {
+                        '_id': ObjectId(request.args.get('bId'))
+                    },
+                    {
+                        '$set':{
+                            'status': True
+                        }
+                    }           
+                )
+            elif request.args.get('method') == 'falid':
+                member_usdt = dbs.member_usdt.find_one({ '_id': ObjectId(request.args.get('bId')) })
+                member_data = dbs.member.find_one({ 'account': member_usdt['m_account'] })
+                dbs.member.update_one(
+                    {
+                        '_id': ObjectId(member_data['_id'])
+                    },
+                    {
+                        '$set':{
+                            'bonus': member_data['bonus'] + float(bonus_data['pay_bonus'])
+                        }
+                    }
+                )
+                dbs.bonus_order.delete_one({ '_id': ObjectId(request.args.get('bId')) })
+
+
+            bonus_data = []
+            bonus_find = dbs.bonus_order.find({})
+            for doc in bonus_find:
+                bonus_data.append(doc)
+            return render_template('admin_bonus.html', bonus_data=bonus_data)
+    elif 'id' in session and request.method == 'POST':
+        member_data = dbs.member.find_one({ '_id': ObjectId(session['id']) })
+        bonus_count = request.form['bonus']
+        if float(bonus_count) > member_data['bonus']:
+            return redirect('profile')
+        else:
+            data = {
+                'm_name': member_data['name'],
+                'm_account': member_data['account'],
+                'm-bonus': member_data['bonus'] - float(bonus_count),
+                'pay_bonus': float(bonus_count),
+                'status': False
+            }
+            dbs.bonus_order.insert_one(data)
+
+            dbs.member.update_one(
+                {
+                    '_id': ObjectId(session['id'])
+                },
+                {
+                    '$set':{
+                        'bonus':member_data['bonus'] - float(bonus_count)
+                    }
+                }
+            )
+            return redirect('profile')
+    else:
+        return redirect('admin_login')
+
+
 
 @app.route('/admin_bonus', methods=['GET', 'POST'])
 def admin_bonus():
@@ -942,12 +1008,12 @@ def admin_dashboard():
         return redirect('admin_login')
     
 
-@app.route('/member_dashboard',methods=['GET', 'POST'])
-def member_dashboard():
-    if 'display_name' in session:
-        return render_template('member_dashboard.html')
-    else:
-        return redirect('index')
+# @app.route('/member_dashboard',methods=['GET', 'POST'])
+# def member_dashboard():
+#     if 'display_name' in session:
+#         return render_template('member_dashboard.html')
+#     else:
+#         return redirect('index')
 
 
 
@@ -1074,7 +1140,10 @@ def admin_login():
 def admin_logout():
     session.clear()
     return redirect('admin_login')
-
+@app.route('/member_logout')
+def member_logout():
+    session.clear()
+    return redirect('/')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -1102,13 +1171,13 @@ def login():
             session['name'] = member_data[0]['name']
             session['id'] = str(member_data[0]['_id'])
 
-            return redirect('profile')
+            return redirect('member_dashboard')
         else:
             return redirect('login')
 
     else:
         if 'id' in session:
-            return redirect('profile')
+            return redirect('member_dashboard')
         return render_template('login.html')
 
 
@@ -1212,9 +1281,8 @@ def order_prove():
     else:
         return redirect('login')
 
-
-@app.route('/profile', methods=['GET', 'POST'])
-def profile():
+@app.route('/member_dashboard', methods=['GET', 'POST'])
+def member_dashboard():
     if 'id' in session:
         if request.args.get('method') == 'controlStatus':
             if request.args.get('status') == "1":
@@ -1235,7 +1303,7 @@ def profile():
             )
             temp_data = dbs.member.find_one({'_id': ObjectId(session['id'])})
             print(temp_data)
-            return redirect('profile')
+            return redirect('member_dashboard')
 
         member_data = dbs.member.find_one(
             {
@@ -1246,9 +1314,47 @@ def profile():
             }
         )
 
-        return render_template('profile.html', member_data=member_data)
+        return render_template('member_dashboard.html', member_data=member_data)
     else:
         return redirect('login')
+
+
+# @app.route('/profile', methods=['GET', 'POST'])
+# def profile():
+#     if 'id' in session:
+#         if request.args.get('method') == 'controlStatus':
+#             if request.args.get('status') == "1":
+#                 status = True
+#             else:
+#                 status = False
+#             print(status)
+#             dbs.member.update_one(
+#                 {
+#                     '_id': ObjectId(session['id'])
+#                 },
+#                 {
+#                     '$set': {
+#                         'status': status
+#                     }
+#                 }
+
+#             )
+#             temp_data = dbs.member.find_one({'_id': ObjectId(session['id'])})
+#             print(temp_data)
+#             return redirect('profile')
+
+#         member_data = dbs.member.find_one(
+#             {
+#                 '_id': ObjectId(session['id'])
+#             },
+#             {
+#                 'password': 0
+#             }
+#         )
+
+#         return render_template('profile.html', member_data=member_data)
+#     else:
+#         return redirect('login')
 
 
 @app.route('/logout')

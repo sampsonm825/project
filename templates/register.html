@@ -22,7 +22,7 @@
   }
   h2 {
     font-weight: bold;
-    font-size: 20px;
+    font-size: 25px;
     letter-spacing: 2px;
     text-align: center;
     margin-top: 30px;
@@ -32,6 +32,11 @@
     display: flex;
     justify-content: center;
     height: calc(100vh - 105px);
+    background-color: #ffffff7a;
+    padding: 10px 60px;
+    box-shadow: 0 0 8px 0 rgb(0, 0, 0, 6%), 0 1px 0 0 rgb(0, 0, 0, 2%);
+    border: 1px solid rgba(54, 64, 74, .1)
+    
   }
   form {
     width: 400px;
@@ -41,7 +46,13 @@
     display: flex;
     align-items: center;
     margin-bottom: 20px;
+    font-weight:bold;
+    font-size: 20px;
+
+
   }
+
+ 
   .form-control label {
     padding-right: 15px;
     width: 35%;
@@ -54,12 +65,27 @@
   }
   .button-group {
     display: flex;
+    color: black; /* 这里使用 'initial' 来保持原始颜色，您也可以指定一个具体的颜色 */
+    text-decoration: none; /* 移除下划线 */
+
   }
   .button-group button {
     margin-left: auto;
     margin-right: 0;
     padding: 4px;
+    font-weight:bold;
+    color: black; /* 这里使用 'initial' 来保持原始颜色，您也可以指定一个具体的颜色 */
+    text-decoration: none; /* 移除下划线 */
+    outline: none;
   }
+    body {
+    background-image: url('/image/USDT.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center; /* 或者使用百分比，如 '50% 50%' */
+}
+
 </style>
 <body>
   <h1>会员注册</h1>
@@ -100,10 +126,13 @@
       </div>
       <div class="form-control">
         <label for="invitedCode">邀请人:</label>
-        <input type="text" name="invitedCode" id="invitedCode" placeholder="请向介绍人索取邀请码">
+        <input type="text" name="invitedCode" id="invitedCode" placeholder="直接填入邀请人账号">
       </div>
       <div class="button-group">
+        <button type="submit" class="no-color-change"><a href="/login">使用者条款</a></button>
+        <button type="submit" class="no-color-change"><a href="/login">隐私权政策</a></button>
         <button type="submit">送出</button>
+        <button type="submit" class="no-color-change"><a href="/login">返回</a></button>
       </div>
     </form>
   </div>
