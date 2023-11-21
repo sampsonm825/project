@@ -1,0 +1,424 @@
+{% extends "member_base.html" %}
+
+{% block title %}後台-訂單管理{% endblock %}
+
+{% block style %}
+<style>
+  .edit-modal {
+    position: absolute;
+    width: 40%;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    background-color: #fff;
+    border: 2px solid #000;
+    opacity: 1;
+    z-index: 99;
+  }
+
+  form {
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .form-control {
+    margin-bottom: 15px;
+  }
+
+  .form-control input {
+    width: 100%;
+    padding: 8px 10px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  button {
+    padding: 4px 6px;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  button.close {
+    background-color: rgb(141, 33, 33);
+  }
+
+  button[type="submit"] {
+    background-color: rgb(60, 60, 122);
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  .is_paid {
+    color: green
+  }
+
+  .no_paid {
+    color: red
+  }
+
+  .page {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .page a {
+    color: white;
+    width: 3%;
+    background-color: rgb(89, 89, 206);
+    text-align: center;
+    padding: 5px;
+    border-right: 1px solid #fff;
+    transition: .5s;
+  }
+
+  .page a:hover {
+    background-color: rgb(35, 35, 168);
+  }
+
+  form.search {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    gap: 30px;
+    margin-bottom: 20px;
+  }
+
+  .search-item {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .search-item label {
+    font-size: 16px;
+  }
+
+  .search-item input,
+  .search-item select {
+    padding: 6px 12px;
+    font-size: 20px;
+  }
+
+  form.search button {
+    background-color: blueviolet;
+    box-shadow: none;
+    outline: none;
+    border: none;
+    padding: 0 12px;
+  }
+
+  form.search a {
+    width: 80px;
+    text-align: center;
+    background-color: rgb(69, 69, 131);
+    color: white;
+    line-height: 39px;
+  }
+
+  table tbody tr td a {
+    background-color: #3C91E6;
+    padding: 4px 10px;
+    color: #fff;
+    border-radius: 4px;
+    opacity: .8;
+    transition: opacity .3s;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  table tbody tr td a.delete {
+    background-color: orangered;
+  }
+
+  table tbody tr td a:hover {
+    opacity: 1;
+  }
+
+  [v-cloak] {
+    display: none !important;
+  }
+
+  .set {
+    background-color: rgb(133, 201, 133);
+  }
+
+  .is_set {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .is_set:hover {
+    background-color: #3C91E6;
+    opacity: 0.7;
+  }
+
+  .orderNo-modal {
+    width: 80%;
+    overflow-y: scroll;
+    position: absolute;
+    height: calc(100vh - 100px);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    border-radius: 30px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    background-color: #000;
+    z-index: -1000;
+    opacity: 0;
+    transition: .5s;
+    padding: 20px;
+  }
+
+  .orderNo-modal.show {
+    opacity: 1;
+    z-index: 2000;
+  }
+
+  .orderNo-modal ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5%;
+    align-items: center;
+  }
+
+  .orderNo-modal li {
+    width: 30%;
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 10px;
+    margin-bottom: 20px;
+    transition: .3s;
+  }
+
+  .orderNo-modal li:hover {
+    background-color: #555;
+  }
+
+  .orderNo-modal li:hover a {
+    transition: .3s;
+  }
+
+  .orderNo-modal li:hover a {
+    color: #fff;
+  }
+
+  .orderNo-modal img {
+    width: 100%;
+    display: block;
+    position: relative;
+    z-index: 0;
+    object-fit: contain;
+    height: 200px;
+  }
+
+  .search-block {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .search-block label {
+    color: #fff;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  .search-block a {
+    color: #fff;
+    font-size: 20px;
+    margin-right: 0;
+    margin-left: auto;
+    display: block;
+    min-width: 40px;
+  }
+</style>
+
+{% endblock %}
+
+{% block main %}
+<div id="app">
+  <div class="orderNo-modal" :class="{ 'show':is_modal }">
+    <div class="search-block">
+      <label for="date">搜寻日期</label>
+      <input type="date" v-model="search_date" @change="searchOrderNo">
+      <a href="javascript:;" @click="is_modal=false">x</a>
+    </div>
+    <ul>
+      <li v-for="item in tempOrderNo_data" :key="item._id" @click="setData(item._id)">
+        [[ item.date ]] <br>
+        [[ item.sender_address ]] <br>
+        [[ item.order_no ]]
+        <img :src="`http://127.0.0.1:5000/order${item.order_no}.png`">
+      </li>
+    </ul>
+  </div>
+  <div class="head-title">
+    <div class="left">
+      <h1>订单列表</h1>
+    </div>
+  </div>
+  <form class="search" action="/admin_order" method="POST">
+    <div class="search-item">
+      <label for="name">会员名称:</label>
+      <input type="text" name="name" id="name" placeholder="請輸入訂購人姓名">
+    </div>
+    <div class="search-item">
+      <label for="no">订单编号:</label>
+      <input type="text" name="no" id="no" placeholder="請輸入訂單編號">
+    </div>
+    <div class="search-item">
+      <label for="is_paid">订单状态:</label>
+      <select name="is_paid" id="is_paid">
+        <option value="" selected>请选择</option>
+        <option value="0">未完成</option>
+        <option value="1">已完成</option>
+      </select>
+    </div>
+    <button type="submit">搜寻</button>
+    <a href="/admin_order">全部页面</a>
+  </form>
+  <div class="table-data">
+    <div class="order">
+      <div class="scroll-table">
+        <table>
+          <thead>
+            <tr>
+              <th>会员</th>
+              <th>会员卡号</th>
+              <th>银行</th>
+              <th>支行名称</th>
+              <th>USDT</th>
+              <th>付款证明</th>
+              <th>状态</th>
+              <th>功能</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in order_data %}
+            <tr>
+              <td>{{ item.member[0].name }}</td>
+              <td>{{ item.member[0].bankAccount }}</td>
+              <td>{{ item.product[0].name }}</td>
+              <td>{{ item.product[0].factory_name }}</td>
+              <td>{{ item.product[0].factory_bank }}</td>
+              <td>
+                {% if item.prove_img != '' %}
+                <img src="{{ item.prove_img }}" alt="">
+                {% else %}
+                未上傳證明
+                {% endif %}
+              </td>
+              <td>
+                {% if item.is_paid == true %}
+                <span class="is_paid">已付款</span>
+                {% else %}
+                <span class="no_paid">未付款</span>
+                {% endif %}
+              </td>
+              <td>
+                <a href="/admin_order?methods=post&oid={{ item._id }}">確認收款</a>
+                <a class="delete" href="/admin_order?methods=delete&oid={{ item._id }}">刪除訂單</a>
+                {% if item.order_detail == false %}
+                <a href="javascript:;" class="set"
+                  @click="setOrderNo('{{ item.member[0].bankAccount }}', '{{ item._id }}')">设定出货单</a>
+                {% else %}
+                <a href="javascript:;" class="is_set">已设定出货单</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  {% if 'all_page' in page_data %}
+  <div class="page">
+    {% for page in range(page_data.all_page) %}
+    <a href="/admin_order?page={{ page + 1 }}">{{ page + 1 }}</a>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+<script src="https://unpkg.com/vue@next"></script>
+<script>
+  const app = Vue.createApp({
+    data() {
+      return {
+        orderNo_data: [],
+        search_date: '',
+        tempBankAccount: '',
+        tempOrderNo_data: [],
+        is_modal: false,
+        tempOid: ''
+      }
+    },
+    methods: {
+      searchOrderNo() {
+        if (this.search_date == '') {
+          this.setOrderNo(this.tempBankAccount);
+        } else {
+          this.setOrderNo(this.tempBankAccount)
+          this.tempOrderNo_data = this.tempOrderNo_data.filter(item => {
+            return item.date == this.search_date
+          })
+        }
+      },
+      setData(order_no) {
+        location.href = `/admin_order?oid=${this.tempOid}&orderno=${order_no}&methods=setorderno`
+      },
+      getOrderNo() {
+        let tempData = '{{ orderNo_data }}'
+        this.orderNo_data = JSON.parse(tempData.replace(/&#39;/g, '"'))
+      },
+      setOrderNo(bankAccount, oid) {
+        this.tempOrderNo_data = []
+        this.is_modal = true
+        this.tempBankAccount = bankAccount
+        this.tempOid = oid
+        this.orderNo_data.forEach(item => {
+          let flag = true
+          if (item.used_oid.length > 0) {
+            console.log('in filter', item)
+            item.used_oid.forEach(used => {
+              if (used == tempBankAccount) {
+                flag = false
+              }
+            })
+            if (flag) {
+              this.tempOrderNo_data.push(item)
+            }
+          } else {
+            this.tempOrderNo_data.push(item)
+          }
+        })
+      }
+    },
+    compilerOptions: {
+      delimiters: ["[[", "]]"]
+    },
+    mounted() {
+      this.getOrderNo()
+
+
+    }
+  })
+  app.mount('#app')
+</script>
+{% endblock %}

@@ -227,6 +227,8 @@
       z-index: 500;
       padding-bottom: 20px;
       box-sizing: content-box;
+      white-space: nowrap;
+
     }
 
     #sidebar .brand .bx {
@@ -238,6 +240,7 @@
     #sidebar .side-menu, #sidebar .side-menu.top .side-menu-dropdown {
       width: 100%;
       margin-top: 20px;
+
     }
     #sidebar .side-menu.top .side-menu-dropdown {
       margin-top: 0px;
@@ -267,7 +270,7 @@
       display: flex;
       align-items: center;
       border-radius: 48px;
-      font-size: 16px;
+      font-size: 24px;
       color: var(--dark);
       white-space: nowrap;
       overflow-x: hidden;
@@ -747,7 +750,9 @@
     /* CONTENT */
 
 
-
+    .bxs-face {
+      color: red; /* 红色 */
+  }
 
 
 
