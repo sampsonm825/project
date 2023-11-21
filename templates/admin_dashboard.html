@@ -3,25 +3,84 @@
 {% block title %}後台管理-首頁面板{% endblock %}
 
 {% block style %}
-<style>
-  * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-  }
-  h1 {
-    font-weight: bold;
-    text-align: center;
-    letter-spacing: 3px;
-    font-size: 32px;
-    padding: 30px 0;
-  }
-</style>
+
+
 {% endblock %}
 
 {% block main %}
-<div class="product">
-  <h1>管理者首頁面板</h1>
+<div class="head-title">
+  <div class="left">
+    <h1>资讯总览</h1>
+    <!-- <ul class="breadcrumb">
+      <li>
+        <a href="#">Dashboard</a>
+      </li>
+      <li><i class='bx bx-chevron-right' ></i></li>
+      <li>
+        <a class="active" href="#">Home</a>
+      </li>
+    </ul> -->
+  </div>
+  <!-- <a href="#" class="btn-download">
+    <i class='bx bxs-cloud-download' ></i>
+    <span class="text">Download PDF</span>
+  </a> -->
 </div>
+<ul class="box-info">
+  <li>
+    <i class='bx bxs-dollar-circle' ></i>
+    <span class="text">
+      <p>USDT余额</p>
+      <h3>1020</h3>
+    </span>
+  </li>
+  <li>
+    <i class='bx bxs-dollar-circle' ></i>
+    <span class="text">
+      <p>即时汇率</p>
+      <h3>7.35</h3>
+    </span>
+  </li>
+  <li style="opacity: 0;">
+  </li>
+  <li style="opacity: 0;">
+  </li>
+  <li>
+    <i class='bx bxs-group' ></i>
+    <span class="text">
+      <p>会员数</p>
+      <h3>28</h3>
+    </span>
+  </li>
+  <li>
+    <i class='bx bxs-group' ></i>
+    <span class="text">
+      <p>今日新增会员</p>
+      <h3>0</h3>
+    </span>
+  </li>
+  <li style="opacity: 0;">
+  </li>
+  <li style="opacity: 0;">
+  </li>
+  <li>
+    <i class='bx bxs-calendar-check' ></i>
+    <span class="text">
+      <p>进行中的订单</p>
+      <h3>3</h3>
+    </span>
+  </li>
+  <li>
+    <i class='bx bxs-calendar-check' ></i>
+    <span class="text">
+      <p>今日总交易U量</p>
+      <h3>102</h3>
+    </span>
+  </li>
+  <li style="opacity: 0;">
+  </li>
+  <li style="opacity: 0;">
+  </li>
 
+</ul>
 {% endblock %}

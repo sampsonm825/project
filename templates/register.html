@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>會員註冊</title>
+  <title>会员注册</title>
 </head>
 <style>
   * {
@@ -15,6 +15,14 @@
   h1 {
     font-weight: bold;
     font-size: 32px;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+  h2 {
+    font-weight: bold;
+    font-size: 20px;
     letter-spacing: 2px;
     text-align: center;
     margin-top: 30px;
@@ -54,51 +62,48 @@
   }
 </style>
 <body>
-  <h1>會員註冊</h1>
+  <h1>会员注册</h1>
+  <h2>资料内容仅供BitTop使用</h2>
   <div class="register">
     <form action="/register" method="POST" enctype='multipart/form-data'>
       <div class="form-control">
-        <label for="account">帳號:</label>
-        <input type="text" name="account" id="account">
+        <label for="account">账号:</label>
+        <input type="text" name="account" id="account" placeholder="账号登入使用请自行保管">
       </div>
       <div class="form-control">
-        <label for="password">登入密碼:</label>
-        <input type="password" name="password" id="password">
+        <label for="password">密码:</label>
+        <input type="password" name="password" id="password" placeholder="密码请妥善保存">
       </div>
       <div class="form-control">
-        <label for="password">確認密碼:</label>
-        <input type="password" name="resetPassword" id="resetPassword">
+        <label for="password">确认密码:</label>
+        <input type="password" name="resetPassword" id="resetPassword" placeholder="请再次输入相同密码">
       </div>
       <div class="form-control">
-        <label for="name">真實姓名:</label>
-        <input type="text" name="name" id="name">
+        <label for="name">真实姓名:</label>
+        <input type="text" name="name" id="name" placeholder="打款对照真实姓名，请留意是否有错字">
       </div>
       <div class="form-control">
-        <label for="IDcard">身分證字號:</label>
-        <input type="text" name="IDcard" id="IDcard">
+        <label for="bankName">银行名称:</label>
+        <input type="text" name="bankName" id="bankName" placeholder="账号申请后，可以在个人账户继续新增">
       </div>
       <div class="form-control">
-        <label for="bankName">銀行名稱:</label>
-        <input type="text" name="bankName" id="bankName">
+        <label for="bankBranch">支行名称:</label>
+        <input type="text" name="bankBranch" id="bankBranch" placeholder="请确实填写">
       </div>
       <div class="form-control">
-        <label for="bankAccount">銀行帳號:</label>
-        <input type="text" name="bankAccount" id="bankAccount">
+        <label for="bankCard">银行卡号:</label>
+        <input type="text" name="bankCard" id="bankCard" placeholder="请确实填写">
       </div>
       <div class="form-control">
-        <label for="IDcardImage">身分證正反面:</label>
-        <input type="file" name="IDcardImage" id="IDcardImage">
+        <label for="bankImage">卡号截图:</label>
+        <input type="file" name="bankImage" id="bankImage" placeholder="仅供人工审核卡号对照用">
       </div>
       <div class="form-control">
-        <label for="bankImage">存摺影本:</label>
-        <input type="file" name="bankImage" id="bankImage">
-      </div>
-      <div class="form-control">
-        <label for="creditImage">金融卡影本:</label>
-        <input type="file" name="creditImage" id="creditImage">
+        <label for="invitedCode">邀请人:</label>
+        <input type="text" name="invitedCode" id="invitedCode" placeholder="请向介绍人索取邀请码">
       </div>
       <div class="button-group">
-        <button type="submit">註冊</button>
+        <button type="submit">送出</button>
       </div>
     </form>
   </div>

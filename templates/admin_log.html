@@ -4,59 +4,7 @@
 
 {% block style %}
 <style>
-  * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-  }
-
-  h1 {
-    font-weight: bold;
-    font-size: 32px;
-    text-align: center;
-    letter-spacing: 3px;
-    margin: 30px 0;
-  }
-
-  .verify {
-    margin-top: 30px;
-    padding: 0 30px;
-  }
-
-  a {
-    width: 20%;
-  }
-
-  table {
-    width: 100%;
-    padding: 0 60px;
-    border-collapse: collapse;
-    border-spacing: 0;
-    border: 1px solid #000;
-    margin: 0 auto;
-  }
-
-  th,
-  td {
-    border: 1px solid #000;
-    width: calc(100% / 4);
-    padding: 8px;
-    text-align: center;
-  }
-
-  table img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-  }
-
-  a {
-    text-decoration: none;
-    display: block;
-    width: 100%;
-    white-space: nowrap;
-    padding: 6px 0;
-  }
+ 
 
   .edit-modal {
     position: absolute;
@@ -107,38 +55,42 @@
     background-color: rgb(60, 60, 122);
   }
 
-  h2 {
-    text-align: center;
-  }
+  
 </style>
 {% endblock %}
 
 {% block main %}
-<h1>收支紀錄</h1>
-<div class="verify">
-  <table>
-    <thead>
-      <tr>
-        <th>紀錄姓名:</th>
-        <th>紀錄訂單編號:</th>
-        <th>支出代幣</th>
-        <th>收入代幣</th>
-        <th>支出红利</th>
-        <th>收入红利</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in record_data %}
-      <tr>
-        <td>{{ item.m_name }}</td>
-        <td>{{ item.oId }}</td>
-        <td>{{ item.out_coin }}</td>
-        <td>{{ item.in_coin }}</td>
-        <td>{{ item.out_bonus }}</td>
-        <td>{{ item.in_bonus }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="head-title">
+  <div class="left">
+    <h1>收支记录</h1>
+  </div>
+</div>
+<div class="table-data">
+  <div class="order">
+    <div class="scroll-table">
+      <table>
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>订单号</th>
+            <th>交易U量</th>
+            <th>USDT余额</th>
+            <th>时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in record_data %}
+          <tr>
+            <td>{{ item.m_name }}</td>
+            <td>{{ item.oId }}</td>
+            <td>{{ item.out_coin }}</td>
+            <td>{{ item.in_coin }}</td>
+            <td>{{ item.out_bonus }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 {% endblock %}

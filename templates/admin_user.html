@@ -4,11 +4,7 @@
 
 {% block style %}
 <style>
-  * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-  }
+  
 
   button {
     background: none;
@@ -32,51 +28,7 @@
     padding: 0;
   }
 
-  .user {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px 30px;
-  }
-
-  h1,
-  h2 {
-    text-align: center;
-    font-size: 32px;
-    font-weight: bold;
-    letter-spacing: 3px;
-    margin-bottom: 30px;
-  }
-
-  h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #000;
-  }
-
-  td,
-  th {
-    border: 1px solid #000;
-    padding: 4px;
-    text-align: center;
-  }
-
-  a {
-    text-decoration: none;
-    display: block;
-    width: 20%;
-    color: #fff;
-    background-color: rgb(117, 117, 198);
-    padding: 6px 10px;
-    text-align: center;
-    margin-right: 0;
-    margin-left: auto;
-    margin-bottom: 30px;
-  }
+  
 
   .add-modal {
     position: absolute;
@@ -144,55 +96,97 @@
   td:last-child {
     padding: 15px 0;
   }
+  table tbody tr td a {
+    background-color: #3C91E6;
+    padding: 4px 10px;
+    color: #fff;
+    border-radius: 4px;
+    opacity: .8;
+    transition: opacity .3s;
+    display: block;
+    margin-bottom: 10px;
+  }
+  table tbody tr td a.delete {
+    background-color: orangered;
+  }
+  table tbody tr td a:hover {
+    opacity: 1;
+  }
+  a.add_btn {
+    text-decoration: none;
+    display: block;
+    width: 20%;
+    color: #fff;
+    background-color: rgb(117, 117, 198);
+    padding: 6px 10px;
+    text-align: center;
+    margin-right: 0;
+    margin-left: auto;
+    margin-bottom: 30px;
+  }
+  [v-cloak]{display: none !important;}
 </style>
 {% endblock %}
 
 {% block main %}
 <div id="app">
-  <div class="user">
-    <h1>管理者账号列表</h1>
-    <a @click="modalControl(true, '新增'), tempUser = { display_name: '最高管理者'}" class="open" href="javascript:;">新增管理者</a>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>名称</th>
-          <th>账号</th>
-          <th>权限</th>
-          <th>功能</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in user_data" :key="item._id">
-          <td>[[ item._id ]]</td>
-          <td>[[ item.name ]]</td>
-          <td>[[ item.account ]]</td>
-          <td>[[ item.display_name ]]</td>
-          <td>
-            <a @click="tempUser = {...item}, modalControl(true, '編輯')" href="javascript:;">編輯</a>
-            <a :href="`/admin_user?methods=delete&id=${[[item._id]]}`">刪除</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="head-title">
+    <div class="left">
+      <h1>管理者列表</h1>
+    </div>
   </div>
-  <div v-show="is_modal" class="add-modal">
-    <h2>[[ modal_title ]]管理者</h2>
+  <div class="user">
+    <a @click="modalControl(true, '新增'), tempUser = { display_name: '最高管理者'  }" class="open add_btn" href="javascript:;">新增管理者</a>
+    <div class="table-data">
+      <div class="order">
+        <div class="scroll-table">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>名称</th>
+                <th>账号</th>
+                <th>权限</th>
+                <th>功能</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in user_data" :key="item._id">
+                <td>[[ item._id ]]</td>
+                <td>[[ item.name ]]</td>
+                <td>[[ item.account ]]</td>
+                <td>[[ item.display_name ]]</td>
+                <td>
+                  <a @click="tempUser = {...item}, modalControl(true, '編輯')" href="javascript:;">編輯</a>
+                  <a class="delete" :href="`/admin_user?methods=delete&id=${[[item._id]]}`">刪除</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- <ul class="page" style="width: 100%">
+        <a v-for="page in page_data.all_page" :href="`/admin_product?page=${page}`" :key="page">[[ page ]]</a>
+      </ul> -->
+    </div>
+  </div>
+  <div v-show="is_modal" class="add-modal" v-cloak>
+    <h2>[[ modal_title ]] 管理者</h2>
     <form action="/admin_user" method="POST">
       <div class="form-control">
         <input type="text" name="name" placeholder="管理者名稱" v-model="tempUser.name">
       </div>
       <div class="form-control">
-        <input type="text" name="account" placeholder="管理者帳号" v-model="tempUser.account">
+        <input type="text" name="account" placeholder="管理者帳號" v-model="tempUser.account">
       </div>
       <div class="form-control">
-        <input type="password" name="password" placeholder="管理者密码" v-model="tempUser.password">
+        <input type="password" name="password" placeholder="管理者密碼" v-model="tempUser.password">
       </div>
       <div class="form-control">
         <select name="display_name" id="display_name" v-model="tempUser.display_name">
-            <option value="最高管理者">最高管理者</option>
-            <option value="一般管理者">一般管理者</option>
-            <option value="厂商接口账号">厂商接口账号</option>
+          <option value="最高管理者">最高管理者</option>
+          <option value="一般管理者">代理</option>
+          <option value="廠商接口帳號">团队长</option>
         </select>
       </div>
       <div class="button-group">

@@ -14,31 +14,30 @@
 <body>
   <main>
     <section id="sidebar">
-      <a href="/admin_dashboard" class="brand">
+      <a href="/profile" class="brand">
         <i class='bx bxs-smile'></i>
         <span class="text">BitTOP</span>
       </a>
       <ul class="side-menu ">
+        <li id="market_system">
           <li v-for="(item, index) in user_data" :key="item._id">
-            <i class='bx bxl-sketch' style='font-size: 35px;'></i>
-            <span style="font-size: 35px;"class="text">{{ session.account }}<span style="font-size: 16px;"class="text">，欢迎回来</span>
-            
+          <a href="javascript:;">
+            <i class="bx bxs-dashboard"></i>
+            <span class="text">想要显示登入者的名称</span>
           </a>
           <ul class="side-menu-dropdown">
             <li id="admin_dashboard">
-              <a href="/admin_dashboard">
-                <i class='bx bxs-notepad'></i>
-                <span class="text">资讯总览</span>
+              <a href="/profile">
+                <span class="text">资讯面板</span>
               </a>
             </li>
-            
-            <li id="admin_dashboard"><a href="/admin_member"><i class='bx bxs-face' ></i><span class="text">会员总表</span></a></li>
-            <li id="admin_order"><a href="/admin_order"><i class='bx bxs-food-menu' ></i><span class="text">订单状态(管)</span></a></li>
-            <li id="admin_product"><a href="/admin_product"><i class='bx bxs-food-menu' ></i><span class="text">订单列表(会员)</span></a></li>
-            <li id="admin_bonus"><a href="/admin_bonus"><i class='bx bxs-bank' ></i><span class="text">提现申请列表</span></a></li>
-            <li id="admin_user"><a href="/admin_user"><i class='bx bxs-plane-alt' ></i><span class="text">管理者列表</span></a></li>
-            <li id="admin_verify"><a href="/admin_verify"><i class='bx bxs-user-voice' ></i><span class="text">会员身份验证</span></a></li>
-            <li id="admin_log"><a href="/admin_log"><i class='bx bx-paperclip' ></i><span class="text">总报表</span></a></li>
+            <li id="admin_dashboard"><a href="/admin_member"><span class="text">会员</span></a></li>
+            <li id="admin_order"><a href="/admin_order"><span class="text">订单状态(管)</span></a></li>
+            <li id="admin_product"><a href="/admin_product"><span class="text">订单列表(会员)</span></a></li>
+            <li id="admin_bonus"><a href="/admin_bonus"><span class="text">提现申请列表</span></a></li>
+            <li id="admin_user"><a href="/admin_user"><span class="text">管理者账号</span></a></li>
+            <li id="admin_verify"><a href="/admin_verify"><span class="text">会员身份验证</span></a></li>
+            <li id="admin_log"><a href="/admin_log"><span class="text">总报表</span></a></li>
           </ul>
         </li>
 
@@ -55,8 +54,8 @@
           <i class='bx bxs-bell' ></i>
           <span class="num">8</span>
         </a>
-        <a href="admin_logout" class="profile">
-          <i class='bx bx-log-out-circle' style='font-size: 35px;'></i>        
+        <a href="#" class="profile">
+          <img src="/img/people.png">
         </a>
         </div>
         
