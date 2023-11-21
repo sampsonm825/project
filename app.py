@@ -1135,7 +1135,12 @@ def admin_login():
             return redirect('admin_dashboard')
         return render_template('admin_login.html')
 
-
+@app.route('/rule1', methods=['GET', 'PSOT'])
+def rule1():
+    return render_template('rule1.html')
+@app.route('/rule2', methods=['GET', 'PSOT'])
+def rule2():
+    return render_template('rule2.html')
 @app.route('/admin_logout')
 def admin_logout():
     session.clear()
