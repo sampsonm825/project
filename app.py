@@ -356,6 +356,46 @@ def random_number(count):
 def index():
     return render_template('index.html')
 
+@app.route('/resetPassword', methods=['GET', 'POST'])
+def resetPassword():
+    if request.method == 'POST':
+        account = request.form['account']
+        password2 = request.form['password2']  # 用户的密保答案
+        new_password = request.form['password']
+        repeat_password = request.form['repeatPassword']
+
+        # 查找匹配的账号和密保问题答案
+        member_data = dbs.bittop_member.find_one({'account': account, 'password2': password2})
+
+        if member_data:
+            if new_password == repeat_password:
+                # 密码加盐和哈希处理
+                password_str = new_password + member_data['salt']
+                user_password = hashlib.sha1(password_str.encode('utf-8'))
+
+                # 更新密码
+                dbs.bittop_member.update_one(
+                    {
+                        '_id': member_data['_id']
+                    },
+                    {
+                        '$set': {
+                            'password': user_password.hexdigest()
+                        }
+                    }
+                )
+                session.clear()
+                return redirect('login')
+            else:
+                # 新密码和重复密码不匹配
+                render_template('resetPassword.html')
+        else:
+            # 账号或密保问题答案不匹配
+            render_template('resetPassword.html')
+
+    else:
+        return redirect('login')
+
 
 
 @app.route('/member_usdt', methods=['GET', 'POST'])
@@ -504,40 +544,36 @@ def admin_log():
         return redirect('admin_login')
 
 
-@app.route('/resetPassword', methods=['GET', 'POST'])
-def resetPassword():
-    if 'id' in session:
-        if request.method == 'POST':
-            old_password = request.form['oldPassword']
-            password = request.form['password']
-            repeat_password = request.form['repeatPassword']
-            member_data = dbs.member.find_one({'_id': ObjectId(session['id'])})
-            old_password_str = old_password + member_data['salt']
-            old_password = hashlib.sha1(old_password_str.encode('utf-8'))
+# @app.route('/resetPassword', methods=['GET', 'POST'])
+# def resetPassword():
+#         if request.method == 'POST':
+#             old_password = request.form['oldPassword']
+#             password = request.form['password']
+#             repeat_password = request.form['repeatPassword']
+#             member_data = dbs.member.find_one({'_id': ObjectId(session['id'])})
+#             old_password_str = old_password + member_data['salt']
+#             old_password = hashlib.sha1(old_password_str.encode('utf-8'))
 
-            if member_data['password'] == old_password.hexdigest() and password == repeat_password:
-                password_str = password + member_data['salt']
-                user_password = hashlib.sha1(password_str.encode('utf-8'))
-                dbs.member.update_one(
-                    {
-                        '_id': ObjectId(session['id'])
-                    },
-                    {
-                        '$set': {
-                            'password': user_password.hexdigest()
-                        }
-                    }
-                )
-                session.clear()
-                return redirect('login')
+#             if member_data['password'] == old_password.hexdigest() and password == repeat_password:
+#                 password_str = password + member_data['salt']
+#                 user_password = hashlib.sha1(password_str.encode('utf-8'))
+#                 dbs.member.update_one(
+#                     {
+#                         '_id': ObjectId(session['id'])
+#                     },
+#                     {
+#                         '$set': {
+#                             'password': user_password.hexdigest()
+#                         }
+#                     }
+#                 )
+#                 session.clear()
+#                 return redirect('login')
 
-            else:
-                return redirect('resetPassword')
-        else:
-
-            return render_template('resetPassword.html')
-    else:
-        return redirect('login')
+#             else:
+#                 return redirect('resetPassword')
+#         else:
+#             return redirect('login')
     
 
 
@@ -1186,6 +1222,8 @@ def login():
         return render_template('login.html')
 
 
+
+
 @app.route('/admin_product', methods=['GET', 'POST'])
 def admin_product():
     if 'display_name' in session:
@@ -1413,6 +1451,7 @@ def register():
     if request.method == 'POST':
         account = request.form['account']
         password = request.form['password']
+        password2 = request.form['password2']
         name = request.form['name']
         resetPassword = request.form['resetPassword']
         bankBranch = request.form['bankBranch']
@@ -1424,7 +1463,7 @@ def register():
         if account_repeat != None:
             return redirect('register')
 
-        print(account, password,   name, resetPassword,
+        print(account, password,   name, resetPassword, password2,
               bankBranch, bankName, bankCard ,invitedCode)
 
         file_arr = []
