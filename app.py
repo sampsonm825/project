@@ -1503,10 +1503,8 @@ def register():
             'salt': salt,
             'invitedCode':invitedCode
         })
-        registration_is_successful = False
-        if registration_is_successful:
-        # 注册成功后，传递一个变量到前端
-            return render_template('register.html', registrationSuccess=True)
+
+        return render_template('success.html')
     else:
         return render_template('register.html')
 
