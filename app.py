@@ -385,7 +385,7 @@ def resetPassword():
                     }
                 )
                 session.clear()
-                return redirect('login')
+                return render_template('success2')
             else:
                 # 新密码和重复密码不匹配
                 render_template('resetPassword.html')
