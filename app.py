@@ -392,9 +392,8 @@ def resetPassword():
         else:
             # 账号或密保问题答案不匹配
             render_template('resetPassword.html')
-
     else:
-        return redirect('login')
+        return render_template('resetPassword.html')
 
 
 
@@ -1504,8 +1503,10 @@ def register():
             'salt': salt,
             'invitedCode':invitedCode
         })
-
-        return '注册成功'
+        registration_is_successful = False
+        if registration_is_successful:
+        # 注册成功后，传递一个变量到前端
+            return render_template('register.html', registrationSuccess=True)
     else:
         return render_template('register.html')
 
