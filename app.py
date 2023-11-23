@@ -10,6 +10,7 @@ import json
 import random
 from flask_apscheduler import APScheduler 
 import requests
+import qrcode
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = basedir+'\public\image'
@@ -385,7 +386,7 @@ def resetPassword():
                     }
                 )
                 session.clear()
-                return render_template('success2')
+                return render_template('success2.html')
             else:
                 # 新密码和重复密码不匹配
                 render_template('resetPassword.html')
@@ -1135,6 +1136,20 @@ def admin_base():
 
     else:
         return redirect('admin_base')
+    
+        
+@app.route('/member_base', methods=['GET', 'POST'])
+def member_base():
+    if 'account' in session :
+        # 直接从会话中获取账号
+        account = session.get('account', 'DefaultAccount')
+        usdt = session.get('USDT', 'DefaultAccount')
+
+        return render_template('member_base.html', account="account", usdt="USDT")
+
+    else:
+        return redirect('member_base')
+
 
 
 @app.route('/admin_login', methods=['GET', 'POST'])
@@ -1194,7 +1209,7 @@ def login():
         session['account'] = account
 
         member_find = dbs.bittop_member.find({
-            'account': account
+            'account': account,
         })
 
         for doc in member_find:
@@ -1210,6 +1225,8 @@ def login():
             session.permanent = True
             session['name'] = member_data[0]['name']
             session['id'] = str(member_data[0]['_id'])
+            session['USDT'] = member_data[0]['USDT']
+            session['invitedCode'] = member_data[0]['invitedCode']
 
             return redirect('member_dashboard')
         else:
@@ -1332,7 +1349,7 @@ def member_dashboard():
             else:
                 status = False
             print(status)
-            dbs.member.update_one(
+            dbs.bittop_member.update_one(
                 {
                     '_id': ObjectId(session['id'])
                 },
@@ -1341,13 +1358,17 @@ def member_dashboard():
                         'status': status
                     }
                 }
-
             )
-            temp_data = dbs.member.find_one({'_id': ObjectId(session['id'])})
+            temp_data = dbs.bittop_member.find_one({'_id': ObjectId(session['id'])})
             print(temp_data)
+
+            # 生成 QR Code
+            invited_code = temp_data.get('account', '')  # 获取邀请码
+            generate_qr_code(invited_code)  # 调用生成 QR Code 的函数
+
             return redirect('member_dashboard')
 
-        member_data = dbs.member.find_one(
+        member_data = dbs.bittop_member.find_one(
             {
                 '_id': ObjectId(session['id'])
             },
@@ -1356,9 +1377,32 @@ def member_dashboard():
             }
         )
 
+        # 生成 QR Code
+        invited_code = member_data.get('account', '')  # 获取邀请码
+        generate_qr_code(invited_code)  # 调用生成 QR Code 的函数
+
         return render_template('member_dashboard.html', member_data=member_data)
     else:
         return redirect('login')
+def generate_qr_code(invited_code):
+    # 生成 QR Code
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(f"http://127.0.0.1:5858/register?invite={invited_code}")
+    qr.make(fit=True)
+
+    # 创建 Image 对象
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # 保存 QR Code 图片（可选）
+    img_path = os.path.join(app.root_path,'public', 'image', 'qrcodes', f"{invited_code}_qrcode.png")
+    img.save(img_path)
+
+
 
 
 # @app.route('/profile', methods=['GET', 'POST'])

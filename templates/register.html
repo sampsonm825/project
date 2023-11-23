@@ -132,8 +132,8 @@
           <input type="file" name="bankImage" id="bankImage" placeholder="仅供人工审核卡号对照用">
         </div>
         <div class="form-control">
-          <label for="invitedCode">邀请人:</label>
-          <input type="text" name="invitedCode" id="invitedCode" placeholder="直接填入邀请人账号">
+          <label for="invitedCode">介绍人:</label>
+          <input type="text" name="invitedCode" id="invitedCode" placeholder="直接填入介绍人账号">
         </div>
         <div class="button-group">
           <button type="submit" class="no-color-change"><a href="/rule1">使用者条款</a></button>
@@ -146,4 +146,27 @@
       </div>
   </div>
 </body>
+<script>
+  // 获取URL参数的函数
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
+  // 在页面加载时执行的函数
+  document.addEventListener('DOMContentLoaded', (event) => {
+    // 获取邀请码参数的值
+    var inviteCode = getParameterByName('invite');
+
+    // 如果邀请码存在，将其赋值给介绍人栏位
+    if (inviteCode) {
+      document.getElementById('invitedCode').value = inviteCode;
+    }
+  });
+</script>
 </html>

@@ -3,8 +3,12 @@
 {% block title %}会员面板{% endblock %}
 
 {% block style %}
-
-
+<style>
+  h4 {
+    font-size: 14px; /* 设置字体大小，可以根据需要调整具体数值 */
+    word-wrap: break-word;
+  }
+</style>
 {% endblock %}
 
 {% block main %}
@@ -31,7 +35,7 @@
     <i class='bx bxs-dollar-circle' ></i>
     <span class="text">
       <p>USDT余额</p>
-      <h3>1020</h3>
+      <h3>{{ session.USDT }}</h3>
     </span>
   </li>
   <li>
@@ -45,25 +49,27 @@
   </li>
   <li style="opacity: 0;">
   </li>
-  <li>
+  <!-- <li>
     <i class='bx bxs-group' ></i>
     <span class="text">
       <p>Email</p>
       <h3>28</h3>
     </span>
-  </li>
+  </li> -->
   <li>
     <i class='bx bxs-group' ></i>
     <span class="text">
       <p>邀请码</p>
-      <h3>0</h3>
+      <h3>{{ session.account }}</h3>
+      <h4>http://127.0.0.1:5858/register?invite={{ session.account }}</h3>
     </span>
   </li>
   <li>
     <i class='bx bxs-group' ></i>
     <span class="text">
       <p>邀请码QRcode</p>
-      <h3>0</h3>
+      <h3><img src="{{ img_path }}" alt="QR Code">
+      </h3>
     </span>
   </li>
   <li>
