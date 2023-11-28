@@ -1342,48 +1342,69 @@ def order_prove():
 
 @app.route('/member_dashboard', methods=['GET', 'POST'])
 def member_dashboard():
-    if 'id' in session:
-        if request.args.get('method') == 'controlStatus':
-            if request.args.get('status') == "1":
-                status = True
-            else:
-                status = False
-            print(status)
-            dbs.bittop_member.update_one(
-                {
-                    '_id': ObjectId(session['id'])
-                },
-                {
-                    '$set': {
-                        'status': status
-                    }
-                }
-            )
-            temp_data = dbs.bittop_member.find_one({'_id': ObjectId(session['id'])})
-            print(temp_data)
+    # 检查用户是否登录
+    if 'id' not in session:
+        return redirect('login')
 
-            # 生成 QR Code
-            invited_code = temp_data.get('account', '')  # 获取邀请码
-            generate_qr_code(invited_code)  # 调用生成 QR Code 的函数
-
-            return redirect('member_dashboard')
-
-        member_data = dbs.bittop_member.find_one(
-            {
-                '_id': ObjectId(session['id'])
-            },
-            {
-                'password': 0
-            }
+    # 处理状态控制逻辑
+    if request.args.get('method') == 'controlStatus':
+        status = request.args.get('status') == "1"
+        print(status)
+        dbs.bittop_member.update_one(
+            {'_id': ObjectId(session['id'])},
+            {'$set': {'status': status}}
         )
+        temp_data = dbs.bittop_member.find_one({'_id': ObjectId(session['id'])})
+        print(temp_data)
 
         # 生成 QR Code
-        invited_code = member_data.get('account', '')  # 获取邀请码
-        generate_qr_code(invited_code)  # 调用生成 QR Code 的函数
+        invited_code = temp_data.get('account', '')
+        generate_qr_code(invited_code)  # 假设已定义
 
-        return render_template('member_dashboard.html', member_data=member_data)
-    else:
-        return redirect('login')
+        return redirect('member_dashboard')
+
+    # 如果是 POST 请求，处理表单提交
+    if request.method == 'POST':
+        print("Received form data:", request.form)
+        session['account'] = request.form['account']
+        bank = request.form['bank']
+        branch = request.form['branch']
+        bankprovince = request.form['bankprovince']
+        accountname = request.form['accountname']
+        cardnumber = request.form['cardnumber']
+
+        try:
+            dbs.bankcard.insert_one({
+                'account':session['account'],
+                'bank': bank,
+                'branch': branch,
+                'bankprovince': bankprovince,
+                'accountname': accountname,
+                'cardnumber': cardnumber,
+            })
+        except Exception as e:
+            print("Error inserting data:", e)
+
+    # 从数据库获取数据
+    cards = list(dbs.bankcard.find())
+    member_data = dbs.bittop_member.find_one({'_id': ObjectId(session['id'])}, {'password': 0})
+
+    cards = [{'accountname': card['accountname'], 'bank': card['bank'], 'branch': card['branch'],'bankprovince': card['bankprovince'],'cardnumber': card['cardnumber'],} for card in cards]
+
+
+    # 生成 QR Code
+    invited_code = member_data.get('account', '')
+    generate_qr_code(invited_code)  # 假设已定义
+
+    # 渲染模板并传递数据
+    return render_template('member_dashboard.html', member_data=member_data, cards=cards)
+    
+
+
+# 假设已定义 generate_qr_code 函数
+def generate_qr_code(invited_code):
+    # QR Code 生成逻辑
+    pass
 def generate_qr_code(invited_code):
     # 生成 QR Code
     qr = qrcode.QRCode(
@@ -1401,8 +1422,6 @@ def generate_qr_code(invited_code):
     # 保存 QR Code 图片（可选）
     img_path = os.path.join(app.root_path,'public', 'image', 'qrcodes', f"{invited_code}_qrcode.png")
     img.save(img_path)
-
-
 
 
 # @app.route('/profile', methods=['GET', 'POST'])
@@ -1497,36 +1516,13 @@ def register():
         password2 = request.form['password2']
         name = request.form['name']
         resetPassword = request.form['resetPassword']
-        bankBranch = request.form['bankBranch']
-        bankName = request.form['bankName']
-        bankCard = request.form['bankCard']
         invitedCode = request.form['invitedCode']
 
-        account_repeat = dbs.member.find_one({'account': account})
+        account_repeat = dbs.bittop_member.find_one({'account': account})
         if account_repeat != None:
             return redirect('register')
 
-        print(account, password,   name, resetPassword, password2,
-              bankBranch, bankName, bankCard ,invitedCode)
-
-        file_arr = []
-        img_data = []
-        imgUrl = ''
-        file_arr.append(request.files['bankImage'])
-
-        for f in file_arr:
-            print('step2')
-            if f and allowed_file(f.filename):
-                file_path = basedir + '\public\image' + f'\{account}'
-                print(file_path)
-                if not os.path.isdir(file_path):
-                    os.mkdir(file_path)
-                f.save(os.path.join(file_path, f.filename))
-                imgUrl = f'/image/{account}/{f.filename}'
-                img_data.append(imgUrl)
-            else:
-                print('step3')
-                return redirect('register')
+        print(account, password,   name, resetPassword, password2,invitedCode)
 
         salt = '645464'
         password_str = password + salt
@@ -1535,12 +1531,9 @@ def register():
         dbs.bittop_member.insert_one({
             'account': account,
             'password': user_password.hexdigest(),
+            'password2':password2,
             'name':  name,
-            'bankName': bankName,
-            'bankBranch':bankBranch,
-            'bankCard': bankCard,
             'USDT': 0,
-            'img_data': img_data,
             'bonus_rate': 0,
             'status': False,
             'is_verify': 0,

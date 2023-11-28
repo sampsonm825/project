@@ -493,8 +493,8 @@
     /* MAIN */
     #content main {
       width: 100%;
-      height: 600px;
-      padding: 36px 24px;
+      height: 700px;
+      padding:10px 24px;
       font-family: var(--poppins);
       max-height: calc(100vh - 56px);
       
@@ -605,6 +605,8 @@
 
     #content main .box-info li .text p {
       color: var(--dark);
+      font-size: 24px;
+      font-weight: bold;
     }
 
 

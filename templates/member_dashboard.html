@@ -3,15 +3,257 @@
 {% block title %}会员面板{% endblock %}
 
 {% block style %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 <style>
   h4 {
-    font-size: 14px; /* 设置字体大小，可以根据需要调整具体数值 */
+    font-size: 14px;
+    /* 设置字体大小，可以根据需要调整具体数值 */
     word-wrap: break-word;
+  }
+
+  .recharge-button {
+    width: 100px;
+    /* 设置按钮宽度 */
+    height: 50px;
+    /* 设置按钮高度 */
+    margin-right: 20px;
+    /* 设置按钮右侧间距 */
+    color: rgb(0, 0, 0);
+    background: red;
+    font-weight: bold;
+    /* 设置按钮文字为粗体 */
+    font-size: 23px;
+
+  }
+
+  .recharge-button2 {
+    width: 150px;
+    /* 设置按钮宽度 */
+    height: 30px;
+    /* 设置按钮高度 */
+    margin-right: 20px;
+    /* 设置按钮右侧间距 */
+    color: rgb(0, 0, 0);
+    background: rgb(159, 173, 175);
+    font-weight: bold;
+    /* 设置按钮文字为粗体 */
+    font-size: 20px;
+
+  }
+
+  button {
+    width: 150px;
+    /* 设置按钮宽度 */
+    height: 30px;
+    /* 设置按钮高度 */
+    margin-right: 20px;
+    /* 设置按钮右侧间距 */
+    color: rgb(0, 0, 0);
+    background: rgb(4, 172, 194);
+    font-weight: bold;
+    /* 设置按钮文字为粗体 */
+    font-size: 20px;
+
+  }
+
+
+
+  .modal {
+    display: none;
+    /* 默认隐藏 */
+    position: fixed;
+    /* 固定位置 */
+    z-index: 1;
+    /* 在顶部 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* 宽度为整个屏幕宽 */
+    height: 100%;
+    /* 高度为整个屏幕高 */
+    overflow: auto;
+    /* 如果需要的话可以滚动 */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* 半透明背景 */
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    /* 垂直居中，你可以调整这个百分比来上下移动模态窗口 */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+    /* 根据需要调整宽度，例如 50% */
+    /* 新添加的样式 */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    left: 30%;
+    /* 给模态窗口添加圆角 */
+    position: relative;
+    /* 为关闭按钮定位 */
+  }
+
+  /* 关闭按钮样式 */
+  .close {
+    color: #aaa;
+    position: absolute;
+    /* 绝对定位 */
+    right: 10px;
+    /* 距离右侧10px */
+    top: 10px;
+    /* 距离顶部10px */
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* 调整选择器和输入框的宽度和间距 */
+  select,
+  input[type="text"],
+  input[type="submit"] {
+    width: 100%;
+    /* 宽度为100% */
+    padding: 10px;
+    margin-top: 8px;
+    /* 顶部间距 */
+    margin-bottom: 16px;
+    /* 底部间距 */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    /* 圆角 */
+  }
+
+  /* 使标签和内容在一行显示 */
+  label {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
+  .table-container {
+    margin-top: 20px;
+    /* 与上方内容的间隔 */
+    overflow-x: auto;
+    /* 横向滚动条 */
+  }
+
+  /* 表格基本样式 */
+  table {
+    width: 100%;
+    /* 表格宽度 */
+    border-collapse: collapse;
+    /* 边框合并 */
+    text-align: left;
+    /* 文字左对齐 */
+  }
+
+  /* 表头样式 */
+  thead {
+    background-color: #f2f2f2;
+    /* 表头背景色 */
+  }
+
+  /* 表格列样式 */
+  th,
+  td {
+    padding: 8px;
+    /* 内间距 */
+    border: 1px solid #ddd;
+    /* 边框 */
+  }
+
+  /* 鼠标悬浮行样式 */
+  tr:hover {
+    background-color: #f5f5f5;
+    /* 鼠标悬浮背景色 */
+  }
+
+  .form-group {
+    margin-bottom: 10px;
+    /* 表单元素的底部间距 */
+  }
+
+  /* 标签样式 */
+  label {
+    display: block;
+    /* 标签显示为块级元素 */
+    margin-bottom: 5px;
+    /* 标签和输入框之间的间距 */
+  }
+
+  /* 输入框和下拉菜单样式 */
+  input[type="text"],
+  select {
+    width: 100%;
+    /* 占满容器宽度 */
+    padding: 8px;
+    /* 内边距 */
+    margin-bottom: 16px;
+    /* 底部间距 */
+    border: 1px solid #ddd;
+    /* 边框 */
+    border-radius: 4px;
+    /* 圆角 */
+  }
+
+  /* 提交按钮样式 */
+  input[type="submit"] {
+    width: auto;
+    /* 自动宽度 */
+    padding: 10px 15px;
+    /* 内边距 */
+    background-color: #5d9cec;
+    /* 背景颜色 */
+    color: white;
+    /* 文字颜色 */
+    border: none;
+    /* 无边框 */
+    border-radius: 4px;
+    /* 圆角 */
+    cursor: pointer;
+    /* 鼠标手势 */
+  }
+
+  input[type="submit"]:hover {
+    background-color: #4a8bdb;
+    /* 鼠标悬浮时的背景颜色 */
   }
 </style>
 {% endblock %}
 
 {% block main %}
+<div id="recharge-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <form id="recharge-form">
+      <div class="form-group">
+        <label for="currency">货币:</label>
+        <select id="currency" name="currency">
+          <option value="usdt">USDT</option>
+          <!-- 添加其他货币选项 -->
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="network">提现网络:</label>
+        <select id="network" name="network">
+          <option value="trc20">TRC20</option>
+          <option value="trc20">ERC20</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="qrcode">扫描充值:</label>
+        <img id="qrcode" src="{{ url_for('static', filename='path/to/your/qrcode.png') }}" alt="QR Code"
+          style="width:100px;height:100px;">
+      </div>
+      <div class="form-group">
+        <input type="text" value="您的QR Code地址" readonly>
+      </div>
+      <input type="submit" value="充值">
+    </form>
+  </div>
+</div>
 <div class="head-title">
   <div class="left">
     <h1>资讯总览</h1>
@@ -32,14 +274,20 @@
 </div>
 <ul class="box-info">
   <li>
-    <i class='bx bxs-dollar-circle' ></i>
+    <i class='bx bxs-dollar-circle'></i>
     <span class="text">
       <p>USDT余额</p>
       <h3>{{ session.USDT }}</h3>
+      <!-- 在 HTML 中使用添加的 CSS 类 -->
+      <button onclick="recharge()" class="recharge-button">快速充值</button>
+
+
+
+
     </span>
   </li>
   <li>
-    <i class='bx bxs-dollar-circle' ></i>
+    <i class='bx bxs-dollar-circle'></i>
     <span class="text">
       <p>即时汇率</p>
       <h3>7.35</h3>
@@ -57,46 +305,420 @@
     </span>
   </li> -->
   <li>
-    <i class='bx bxs-group' ></i>
+    <i class='bx bxs-group'></i>
     <span class="text">
       <p>邀请码</p>
       <h3>{{ session.account }}</h3>
-      <h4>http://127.0.0.1:5858/register?invite={{ session.account }}</h3>
     </span>
   </li>
   <li>
-    <i class='bx bxs-group' ></i>
+    <i class='bx bxs-group'></i>
     <span class="text">
       <p>邀请码QRcode</p>
-      <h3><img src="{{ img_path }}" alt="QR Code">
-      </h3>
+      <h3><img src="{{ url_for('static', filename='image/qrcodes/{}_qrcode.png'.format(session.account)) }}"
+          alt="QR Code" style="width: 90px; height: 90px;"></h3>
+      <h4 id="invite-link">http://127.0.0.1:5858/register?invite={{ session.account }}</h4>
+      <button onclick="copyLink()">复制注册网址</button>
     </span>
   </li>
   <li>
-    <i class='bx bxs-group' ></i>
+    <i class='bx bxs-group'></i>
     <span class="text">
       <p>二部验证</p>
       <h3>0</h3>
     </span>
   </li>
-  <li>
-    <i class='bx bxs-calendar-check' ></i>
-    <span class="text">
-      <p>进行中的订单</p>
-      <h3>3</h3>
-    </span>
-  </li>
-  <li>
-    <i class='bx bxs-calendar-check' ></i>
-    <span class="text">
-      <p>今日总交易U量</p>
-      <h3>102</h3>
-    </span>
-  </li>
   <li style="opacity: 0;">
   </li>
-  <li style="opacity: 0;">
-  </li>
-
 </ul>
+
+<button id="add-card-button" class="recharge-button2">新增收款卡</button>
+
+<!-- 新增收款卡模态窗口，初始隐藏 -->
+<div id="add-card-modal" class="modal">
+
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <form id="add-card-form" action="/member_dashboard" method="POST">
+      <!-- 表单内容 -->
+      <h2>新增银行卡信息</h2>
+      <div class="form-group">
+        <label for="account" style="font-size: 30px; font-weight: bold;" name="account">账号:{{ session.account }}</label>
+        <input type="hidden" name="account" value="{{ session.account }}">
+      </div>
+      <div class="form-group">
+        <label for="bank">银行名称:</label>
+        <input type="text" name="bank" id="bank" list="ide" required>
+        <datalist id="ide">
+          <option value="兰州银行">兰州银行</option>
+          <option value="泸州银行">泸州银行</option>
+          <option value="成都农商银行">成都农商银行</option>
+          <option value="张家港农商银行">张家港农商银行</option>
+          <option value="甘肃银行">甘肃银行</option>
+          <option value="广州银行">广州银行</option>
+          <option value="甘肃农信">甘肃农信</option>
+          <option value="安徽省农村信用社">安徽省农村信用社</option>
+          <option value="江西省农村信用社">江西省农村信用社</option>
+          <option value="贵州省农村信用社">贵州省农村信用社</option>
+          <option value="云南省农村信用社">云南省农村信用社</option>
+          <option value="海南省农村信用社">海南省农村信用社</option>
+          <option value="湖南省农村信用社">湖南省农村信用社</option>
+          <option value="江苏省农村信用社">江苏省农村信用社</option>
+          <option value="陕西省农村信用社">陕西省农村信用社</option>
+          <option value="湖北省农村信用社">湖北省农村信用社</option>
+          <option value="浙江省农村信用社">浙江省农村信用社</option>
+          <option value="四川省农村信用社">四川省农村信用社</option>
+          <option value="山东省农村信用社">山东省农村信用社</option>
+          <option value="山西省农村信用社">山西省农村信用社</option>
+          <option value="内蒙古自治区农村信用社">内蒙古自治区农村信用社</option>
+          <option value="新疆维吾尔自治区农村信用社">新疆维吾尔自治区农村信用社</option>
+          <option value="天津银行">天津银行</option>
+          <option value="恒丰银行">恒丰银行</option>
+          <option value="东营银行">东营银行</option>
+          <option value="杭州联合银行">杭州联合银行</option>
+          <option value="昆山农村商业银行">昆山农村商业银行</option>
+          <option value="长沙银行">长沙银行</option>
+          <option value="郑州银行">郑州银行</option>
+          <option value="南京银行">南京银行</option>
+          <option value="青岛银行">青岛银行</option>
+          <option value="华融湘江银行">华融湘江银行</option>
+          <option value="长安银行">长安银行</option>
+          <option value="桂林银行">桂林银行</option>
+          <option value="江西银行">江西银行</option>
+          <option value="成都银行">成都银行</option>
+          <option value="哈尔滨银行">哈尔滨银行</option>
+          <option value="吉林银行">吉林银行</option>
+          <option value="吉林农信">吉林农信</option>
+          <option value="鞍山市商业银行">鞍山市商业银行</option>
+          <option value="武汉农村商业银行">武汉农村商业银行</option>
+          <option value="绍兴银行">绍兴银行</option>
+          <option value="上海华瑞银行">上海华瑞银行</option>
+          <option value="浙江泰隆商业银行">浙江泰隆商业银行</option>
+          <option value="深圳农村商业银行">深圳农村商业银行</option>
+          <option value="上海农村商业银行">上海农村商业银行</option>
+          <option value="济宁银行">济宁银行</option>
+          <option value="晋商银行">晋商银行</option>
+          <option value="山西银行">山西银行</option>
+          <option value="中原银行">中原银行</option>
+          <option value="东营莱商村镇银行">东营莱商村镇银行</option>
+          <option value="台州银行">台州银行</option>
+          <option value="浙商银行">浙商银行</option>
+          <option value="招商银行">招商银行</option>
+          <option value="广东农信">广东农信</option>
+          <option value="四川银行">四川银行</option>
+          <option value="自贡银行">自贡银行</option>
+          <option value="焦作中旅银行">焦作中旅银行</option>
+          <option value="浦发银行">浦发银行</option>
+          <option value="北京银行">北京银行</option>
+          <option value="民生银行">民生银行</option>
+          <option value="兴业银行">兴业银行</option>
+          <option value="广西农信">广西农信</option>
+          <option value="邮政银行">邮政银行</option>
+          <option value="中信银行">中信银行</option>
+          <option value="农业银行">农业银行</option>
+          <option value="上海银行">上海银行</option>
+          <option value="光大银行">光大银行</option>
+          <option value="中国银行">中国银行</option>
+          <option value="平安银行">平安银行</option>
+          <option value="建设银行">建设银行</option>
+          <option value="工商银行">工商银行</option>
+          <option value="内蒙古银行">内蒙古银行</option>
+          <option value="九江银行">九江银行</option>
+          <option value="福建农信社">福建农信社</option>
+          <option value="厦门银行">厦门银行</option>
+          <option value="重庆农村商业银行">重庆农村商业银行</option>
+          <option value="蒙商银行">蒙商银行</option>
+          <option value="珠海华润银行">珠海华润银行</option>
+          <option value="华夏银行">华夏银行</option>
+          <option value="福建海峡银行">福建海峡银行</option>
+          <option value="河南农信">河南农信</option>
+          <option value="西安银行">西安银行</option>
+          <option value="阜新银行">阜新银行</option>
+          <option value="苏州银行">苏州银行</option>
+          <option value="宁波银行">宁波银行</option>
+          <option value="辽宁农信">辽宁农信</option>
+          <option value="江苏银行">江苏银行</option>
+          <option value="四川天府银行">四川天府银行</option>
+          <option value="宁波通商银行">宁波通商银行</option>
+          <option value="河北农信">河北农信</option>
+          <option value="龙江银行">龙江银行</option>
+          <option value="贵州银行">贵州银行</option>
+          <option value="北京农商银行">北京农商银行</option>
+          <option value="邯郸银行">邯郸银行</option>
+          <option value="贵阳银行">贵阳银行</option>
+          <option value="IBK企业银行">IBK企业银行</option>
+          <option value="广州农村商业银行">广州农村商业银行</option>
+          <option value="厦门国际银行">厦门国际银行</option>
+          <option value="威海市商业银行">威海市商业银行</option>
+          <option value="徽商银行">徽商银行</option>
+          <option value="黄河农村商业银行">黄河农村商业银行</option>
+          <option value="稠州银行">稠州银行</option>
+          <option value="杭州银行">杭州银行</option>
+          <option value="东莞农村商业银行">东莞农村商业银行</option>
+          <option value="贵阳农商银行">贵阳农商银行</option>
+          <option value="南洋商業銀行">南洋商業銀行</option>
+          <option value="韩亚银行">韩亚银行</option>
+          <option value="保定银行">保定银行</option>
+          <option value="大连银行">大连银行</option>
+          <option value="天津农商">天津农商</option>
+          <option value="嘉兴银行">嘉兴银行</option>
+          <option value="德州银行">德州银行</option>
+          <option value="邢台银行">邢台银行</option>
+          <option value="昆仑银行">昆仑银行</option>
+          <option value="天津农商">天津农商</option>
+          <option value="嘉兴银行">嘉兴银行</option>
+          <option value="德州银行">德州银行</option>
+          <option value="泸州银行">泸州银行</option>
+          <option value="兰州银行">兰州银行</option>
+          <option value="成都农商银行">成都农商银行</option>
+          <option value="民泰商业银行">民泰商业银行</option>
+          <option value="抚顺银行">抚顺银行</option>
+          <option value="海南银行">海南银行</option>
+          <option value="贵阳农商">贵阳农商</option>
+          <option value="江苏长江商业银行">江苏长江商业银行</option>
+          <option value="柳州银行">柳州银行</option>
+          <option value="曲靖市商业银行">曲靖市商业银行</option>
+          <option value="泰安银行">泰安银行</option>
+          <option value="沧州银行">沧州银行</option>
+          <option value="青海银行">青海银行</option>
+          <option value="莱商银行">莱商银行</option>
+          <option value="泉州银行">泉州银行</option>
+          <option value="常熟农商银行">常熟农商银行</option>
+          <option value="锦阳市商业银行">锦阳市商业银行</option>
+          <option value="苏州农商银行">苏州农商银行</option>
+          <option value="烟台银行">烟台银行</option>
+          <option value="廊坊银行">廊坊银行</option>
+          <option value="营口银行">营口银行</option>
+          <option value="上饶银行">上饶银行</option>
+          <option value="承德银行">承德银行</option>
+          <option value="朝阳银行">朝阳银行</option>
+          <option value="富滇银行">富滇银行</option>
+          <option value="赣州银行">赣州银行</option>
+          <option value="黑龙江省农村信用社">黑龙江省农村信用社</option>
+          <option value="湖南银行">湖南银行</option>
+          <option value="汉口银行">汉口银行</option>
+          <option value="河北银行">河北银行</option>
+          <option value="湖北银行">湖北银行</option>
+          <option value="江南银行">江南银行</option>
+          <option value="锦州银行">锦州银行</option>
+          <option value="绵阳市商业银行">绵阳市商业银行</option>
+          <option value="宁夏黄河农村商业银行">宁夏黄河农村商业银行</option>
+          <option value="南洋商业银行">南洋商业银行</option>
+          <option value="齐商银行">齐商银行</option>
+          <option value="石嘴山银行">石嘴山银行</option>
+          <option value="遂宁银行">遂宁银行</option>
+          <option value="唐山银行">唐山银行</option>
+          <option value="温州银行">温州银行</option>
+          <option value="新疆汇和银行">新疆汇和银行</option>
+          <option value="伊犁国民村镇银行">伊犁国民村镇银行</option>
+          <option value="云南红塔银行">云南红塔银行</option>
+          <option value="张家口银行">张家口银行</option>
+          <option value="浙江稠州商业银行">浙江稠州商业银行</option>
+          </select>
+      </div>
+      <div class="form-group">
+        <label for="branch">银行支行:</label>
+        <input type="text" id="branch" name="branch" required>
+      </div>
+      <div class="form-group">
+        <label for="bankprovince">银行省份-城市</label>
+        <input type="text" id="bankprovince" name="bankprovince" required>
+      </div>
+      <div class="form-group">
+        <label for="accountname">户名:</label>
+        <input type="text" id="accountname" name="accountname" required>
+      </div>
+      <div class="form-group">
+        <label for="cardnumber">银行卡号:</label>
+        <input type="text" id="cardnumber" name="cardnumber" required>
+      </div>
+      <button type="submit">送出</button>
+    </form>
+  </div>
+</div>
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>户名</th>
+        <th>银行名称</th>
+        <th>账号</th>
+        <th>银行省份</th>
+        <th>银行支行</th>
+        <th>编辑</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 确保您的 for 循环语法正确，并且在这个循环内部 -->
+      {% for card in cards %}
+      <tr>
+          <td>{{ card.accountname }}</td>
+          <td>{{ card.bank }}</td>
+          <td>{{ card.cardnumber }}</td>
+          <td>{{ card.bankprovince }}</td>
+          <td>{{ card.branch }}</td>
+        <td>
+          <!-- 这里的编辑和删除链接需要对应的路由和逻辑来处理 -->
+          <a href="javascript:void(0);" onclick="editCard('{{ cards._id }}')">编辑</a>
+          <!-- 确保您有一个删除卡片的路由和逻辑 -->
+          <a href="/delete_card/{{ cards._id }}">删除</a>
+        </td>
+      </tr>
+      {% else %}
+      <!-- 如果没有卡片数据，则显示消息 -->
+      <tr>
+        <td colspan="6">没有找到卡片数据。</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script>
+
+
+
+  function copyLink() {
+    // 获取文本元素
+    var linkText = document.getElementById("invite-link");
+
+    // 创建临时文本区域
+    var tempTextArea = document.createElement("textarea");
+    tempTextArea.value = linkText.innerText;
+
+    // 将文本区域添加到文档中
+    document.body.appendChild(tempTextArea);
+
+    // 选择文本
+    tempTextArea.select();
+    tempTextArea.setSelectionRange(0, 99999); /* For mobile devices */
+
+    // 尝试执行复制命令
+    document.execCommand("copy");
+
+    // 移除临时文本区域
+    document.body.removeChild(tempTextArea);
+
+    // 提示用户已复制
+    alert("网址已复制！");
+  }
+  // 获取模态窗口元素
+  var modal = document.getElementById('recharge-modal');
+  // 获取打开模态窗口的按钮元素
+  var btn = document.querySelector('.recharge-button');
+  // 获取 <span> 元素，用于关闭模态窗口
+  var span = document.getElementsByClassName('close')[0];
+
+  // 当用户点击按钮时打开模态窗口
+  btn.onclick = function () {
+    modal.style.display = 'block';
+  }
+
+  // 当用户点击 <span> (x), 关闭模态窗口
+  span.onclick = function () {
+    modal.style.display = 'none';
+  }
+
+  // 当用户点击模态窗口之外的任何地方，关闭它
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
+  // 获取新增收款卡模态窗口元素
+  var addCardModal = document.getElementById('add-card-modal');
+  // 获取打开模态窗口的按钮元素
+  var addCardBtn = document.getElementById('add-card-button');
+  // 获取关闭模态窗口的按钮元素
+  var closeBtns = document.getElementsByClassName('close'); // 可能有多个关闭按钮
+
+  // 当用户点击新增收款卡按钮时打开模态窗口
+  addCardBtn.onclick = function () {
+    addCardModal.style.display = 'block';
+  }
+
+  // 关闭模态窗口
+  for (var i = 0; i < closeBtns.length; i++) {
+    closeBtns[i].onclick = function () {
+      this.parentElement.parentElement.style.display = 'none';
+    }
+  }
+
+  // 当用户点击模态窗口之外的任何地方，关闭它
+  window.onclick = function (event) {
+    if (event.target == addCardModal) {
+      addCardModal.style.display = 'none';
+    }
+  }
+  // 获取模态窗口元素
+  var modal = document.getElementById('add-card-modal');
+
+  // 获取表单元素
+  var form = document.getElementById('add-card-form');
+
+  // 监听表单的提交事件
+  form.addEventListener('submit', function (event) {
+    event.preventDefault(); // 阻止表单的默认提交行为
+
+    // TODO: 在这里添加发送数据到服务器的代码，例如使用fetch API
+
+    // 假设数据已成功发送到服务器，关闭模态窗口
+    modal.style.display = 'none';
+
+    // 重置表单
+    form.reset();
+  });
+
+  // 获取关闭按钮元素
+  var closeBtn = document.getElementsByClassName('close')[0];
+
+  // 点击关闭按钮时关闭模态窗口并重置表单
+  closeBtn.onclick = function () {
+    modal.style.display = 'none';
+    form.reset();
+  }
+  function refreshTable(cards) {
+  var tbody = document.querySelector('.table-container table tbody');
+
+  // 为每张卡片创建一个行元素
+  cards.forEach(card => {
+    // 检查卡片是否已经在表格中
+    if (!document.querySelector(`tr[data-cardnumber="${card.cardnumber}"]`)) {
+      var row = document.createElement('tr');
+      row.setAttribute('data-cardnumber', card.cardnumber); // 用卡号作为唯一标识
+
+      row.innerHTML = `<td>${card.accountname}</td>
+                       <td>${card.bank}</td>
+                       <td>${card.cardnumber}</td>
+                       <td>${card.bankprovince}</td>
+                       <td>${card.branch}</td>
+                       <td>编辑和删除链接</td>`;
+      tbody.appendChild(row); // 将新行添加到表格
+    }
+  });
+}
+
+  // 修改表单提交事件处理程序
+  document.getElementById('add-card-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+
+    fetch('/member_dashboard', {
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        // 假设服务器返回所有银行卡的列表
+        if (data.cards) {
+          refreshTable(data.cards);
+        } else {
+          console.error('No cards returned from server.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding the card.');
+      });
+  });
+</script>
 {% endblock %}
