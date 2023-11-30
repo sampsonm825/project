@@ -1,0 +1,266 @@
+{% extends "admin_base.html" %}
+
+{% block title %}後台管理-產品{% endblock %}
+
+{% block style %}
+<style>
+  button {
+    background: none;
+    border: 0;
+    color: inherit;
+    /* cursor: default; */
+    font: inherit;
+    line-height: normal;
+    overflow: visible;
+    padding: 0;
+    -webkit-appearance: button;
+    /* for input */
+    -webkit-user-select: none;
+    /* for button */
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  button::-moz-focus-inner {
+    border: 0;
+    padding: 0;
+  }
+
+
+  .add-modal {
+    position: absolute;
+    width: 40%;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    background-color: #fff;
+    border: 2px solid #000;
+    z-index: 99;
+  }
+
+
+  form {
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .form-control {
+    margin-bottom: 15px;
+  }
+
+  .form-control input {
+    width: 100%;
+    padding: 8px 10px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  button {
+    padding: 4px 6px;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  button.close {
+    background-color: rgb(141, 33, 33);
+  }
+
+  button[type="submit"] {
+    background-color: rgb(60, 60, 122);
+  }
+
+  td a {
+    display: block;
+    margin: 0 auto;
+    width: 50%;
+  }
+
+  td a:first-child {
+    margin-bottom: 10px;
+  }
+
+  td a:last-child {
+    background-color: rgb(171, 83, 111);
+  }
+
+  td:last-child {
+    padding: 15px 0;
+  }
+
+  .page {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .page a {
+    color: white;
+    width: 3%;
+    background-color: rgb(89, 89, 206);
+    text-align: center;
+    padding: 5px;
+    border-right: 1px solid #fff;
+    transition: .5s;
+  }
+
+  .page a:hover {
+    background-color: rgb(35, 35, 168);
+  }
+
+  table tbody tr td a {
+    background-color: #3C91E6;
+    padding: 4px 10px;
+    color: #fff;
+    border-radius: 4px;
+    opacity: .8;
+    transition: opacity .3s;
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  table tbody tr td a.delete {
+    background-color: orangered;
+  }
+
+  table tbody tr td a:hover {
+    opacity: 1;
+  }
+
+  a.add_btn {
+    text-decoration: none;
+    display: block;
+    width: 20%;
+    color: #fff;
+    background-color: rgb(117, 117, 198);
+    padding: 6px 10px;
+    text-align: center;
+    margin-right: 0;
+    margin-left: auto;
+    margin-bottom: 30px;
+  }
+
+  [v-cloak] {
+    display: none !important;
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<div id="app">
+  <div class="head-title">
+    <div class="left">
+      <h1>订单列表</h1>
+    </div>
+  </div>
+  <div class="product">
+    <a @click="modalControl(true, '新增'), tempProduct = {}" class="open add_btn" href="javascript:;">新增订单</a>
+    <div class="table-data">
+      <div class="order">
+        <div class="scroll-table">
+          <table>
+            <thead>
+              <tr>
+                <th>会员名称</th>
+                <th>USDT数量</th>
+                <th>汇率(单价)</th>
+                <th>总价(CNY)</th>
+                <th>限额</th>
+                <th>自动下架时间</th>
+                <th>功能</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in product_data" :key="item._id">
+                <td>[[ item.name ]]</td>
+                <td>[[ item.desc ]]</td>
+                <td>[[ item.price ]]</td>
+                <td>[[ item.factory_name ]]</td>
+                <td>[[ item.factory_bank ]]</td>
+                <td>
+                  <a @click="tempProduct = {...item}, modalControl(true, '編輯')" href="javascript:;">編輯</a>
+                  <a class="delete" :href="`/admin_product?methods=delete&id=${[[item._id]]}`">刪除</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div v-show="is_modal" class="add-modal" v-cloak>
+      <h2>[[ modal_title ]]订单</h2>
+      <form action="/admin_product" method="POST">
+        <div class="form-control">
+          <input type="text" name="desc" placeholder="USDT数量" v-model="tempProduct.desc">
+        </div>
+        <div class="form-control">
+          <input type="text" name="price" placeholder="汇率(单价)" v-model="tempProduct.price">
+        </div>
+        <div class="form-control">
+          <input type="text" name="factory_name" placeholder="总价(CNY)" v-model="tempProduct.factory_name">
+        </div>
+        <div class="form-control">
+          <input type="text" name="min_price" placeholder="最低单笔限额" v-model="tempProduct.factory_name">
+        </div>
+        <div class="form-control">
+          <input type="text" name="max_price" placeholder="最高单笔限额" v-model="tempProduct.factory_name">
+        </div>
+        <div class="form-control">
+          <input type="text" name="lastdate" placeholder="自动下架时间" v-model="tempProduct.factory_name">
+        </div>
+        <div class="form-control">
+          <input type="text" name="potp" placeholder="Google OTP">
+        </div>
+        <div class="button-group">
+          <input type="hidden" name="id" v-model="tempProduct._id">
+          <button @click="modalControl(false), tempProduct = {}" type="button" class="add_btn close ">取消</button>
+          <button type="submit">[[ modal_title ]]</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script src="https://unpkg.com/vue@next"></script>
+<script>
+  const app = Vue.createApp({
+    data() {
+      return {
+        product_data: '',
+        is_modal: false,
+        tempProduct: {},
+        modal_title: ''
+      }
+    },
+    compilerOptions: {
+      delimiters: ["[[", "]]"]
+    },
+    methods: {
+      modalControl(type, fun) {
+        type ? this.is_modal = true : this.is_modal = false
+        this.modal_title = fun
+        if (type && fun === '新增') {
+          this.setCurrentTime(); // 设置当前时间
+          this.tempProduct = {}; // 重置tempProduct
+      }
+    },
+    setCurrentTime() {
+        const now = new Date();
+        const formattedTime = now.toISOString().slice(0, 19).replace('T', ' ');
+        this.tempProduct.factory_bank = formattedTime;
+      },
+    created() {
+      let tempProduct = '{{ product_data }}'
+      this.product_data = JSON.parse(tempProduct.replace(/&#39;/g, '"'))
+    }
+
+  }})
+  app.mount('#app')
+</script>
+{% endblock %}

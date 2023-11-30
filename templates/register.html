@@ -96,6 +96,10 @@
         <h1>会员注册</h1>
         <h2>资料内容仅供BitTop使用</h2>
         <div class="form-control">
+          <label for="display_name" style="font-size: 30px; font-weight: bold;" name="display_name">一般会员</label>
+          <input type="hidden" name="display_name" value="一般会员">
+        </div>
+        <div class="form-control">
           <label for="account">账号:</label>
           <input type="text" name="account" id="account" placeholder="账号登入使用请自行保管">
         </div>
@@ -120,6 +124,7 @@
           <label for="invitedCode">介绍人:</label>
           <input type="text" name="invitedCode" id="invitedCode" placeholder="直接填入介绍人账号">
         </div>
+
         <div class="button-group">
           <button type="submit" class="no-color-change"><a href="/rule1">使用者条款</a></button>
           <button type="submit" class="no-color-change"><a href="/rule2">隐私权政策</a></button>

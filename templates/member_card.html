@@ -1,0 +1,165 @@
+{% extends "member_base.html" %}
+
+{% block title %}後台-會員管理{% endblock %}
+
+{% block style %}
+<style>
+  
+  .edit-modal {
+    position: absolute;
+    width: 40%;
+    top: 70%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    background-color: #fff;
+    border: 2px solid #000;
+    opacity: 1;
+    z-index: 99;
+  }
+  form {
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .form-control {
+    margin-bottom: 15px;
+  }
+
+  .form-control input {
+    width: 100%;
+    padding: 8px 10px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  button {
+    padding: 4px 6px;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+  }
+  button.close {
+    background-color: rgb(141, 33, 33);
+  }
+  button[type="submit"] {
+    background-color: rgb(60, 60, 122);
+  }
+  h2 {
+    text-align: center;
+  }
+  .page {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .page a{
+    color: white;
+    width: 3%;
+    background-color: rgb(89, 89, 206);
+    text-align: center;
+    padding: 5px;
+    border-right: 1px solid #fff;
+    transition: .5s;
+  }
+  .page a:hover {
+    background-color: rgb(35, 35, 168);
+  }
+  [v-cloak]{display: none !important;}
+</style>
+{% endblock %}
+
+{% block main %}
+<div id="app">
+  <div class="head-title">
+    <div class="left">
+      <h1>會員列表</h1>
+      <!-- <ul class="breadcrumb">
+        <li>
+          <a href="#">Dashboard</a>
+        </li>
+        <li><i class='bx bx-chevron-right' ></i></li>
+        <li>
+          <a class="active" href="#">Home</a>
+        </li>
+      </ul> -->
+    </div>
+    <!-- <a href="#" class="btn-download">
+      <i class='bx bxs-cloud-download' ></i>
+      <span class="text">Download PDF</span>
+    </a> -->
+  </div>
+  <div class="verify">
+    <div class="table-data">
+      <div class="order">
+        <div class="scroll-table">
+          <table>
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>帳號</th>
+                <th>身分證</th>
+                <th>銀行帳戶</th>
+                <th>持有代幣</th>
+                <th>代幣上限</th>
+                <th>紅利率</th>
+                <th>紅利</th>
+                <th>功能</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, index) in member_data" :key="item._id">
+                <td>[[ item.name ]]</td>
+                <td>[[ item.account ]]</td>
+                <td>[[ item.IDcard ]]</td>
+                <td>[[ item.bankAccount ]]</td>
+                <td>[[ item.real_coin ]]</td>
+                <td>[[ item.coin ]]</td>
+                <td>[[ item.bonus_rate ]]</td>
+                <td>[[ item.bonus ]]</td>
+                <td>
+                  <a  class="delete" :href="`/member_card?methods=delete&id=${[[ item._id ]]}`">刪除</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
+
+
+<script src="https://unpkg.com/vue@next"></script>
+<script>
+  const app = Vue.createApp({
+    data () {
+      return {
+        member_data: '',
+        is_modal: false,
+        tempMember: {}
+      }
+    },
+    compilerOptions: {
+      delimiters: ["[[", "]]"]
+    },
+    methods: {
+      modalControl (type) {
+        type ? this.is_modal = true : this.is_modal = false
+      }
+    },
+    created () {
+      let tempMember = '{{ member_data }}'
+      this.member_data = JSON.parse(tempMember.replace(/&#39;/g, '"'))
+    }
+  })
+  app.mount('#app')
+</script>
+{% endblock %}

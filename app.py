@@ -37,6 +37,15 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 scheduler.start()
 
+@app.route('/index_old', methods=['GET', 'PSOT'])
+def index_old():
+    bankcards = list(dbs.bankcard.find())
+
+    # 可以选择在这里关闭连接，也可以不关闭
+    # client.close()
+
+    # 渲染 HTML 模板，并传递 bankcards 数据
+    return render_template('index_old.html', bankcards=bankcards)
 
 
 @app.route('/admin_manifestOrder', methods=['GET', 'POST'])
@@ -1365,40 +1374,74 @@ def member_dashboard():
 
     # 如果是 POST 请求，处理表单提交
     if request.method == 'POST':
-        print("Received form data:", request.form)
-        session['account'] = request.form['account']
-        bank = request.form['bank']
-        branch = request.form['branch']
-        bankprovince = request.form['bankprovince']
-        accountname = request.form['accountname']
-        cardnumber = request.form['cardnumber']
+        # 首先检查并更新 session 中的 'account' 值
+        account = request.form.get('account')
+        if account is not None:
+            session['account'] = account
+        card_id = request.form.get('card_id')
+        if card_id:
+            # 执行更新操作
+            bank = request.form.get('bank')
+            branch = request.form.get('branch')
+            bankprovince = request.form.get('bankprovince')
+            accountname = request.form.get('accountname')
+            cardnumber = request.form.get('cardnumber')
+            try:
+                dbs.bankcard.update_one(
+                    {'_id': ObjectId(card_id)},
+                    {'$set': {'bank': bank, 'branch': branch,'bankprovince':bankprovince,'accountname':accountname,'cardnumber':cardnumber}}
+                )
+                flash('Card updated successfully.')
+            except Exception as e:
+                print(f"Error updating card: {e}")
+                flash('Error occurred while updating the card.')
+            return redirect(url_for('member_dashboard'))
 
-        try:
-            dbs.bankcard.insert_one({
-                'account':session['account'],
-                'bank': bank,
-                'branch': branch,
-                'bankprovince': bankprovince,
-                'accountname': accountname,
-                'cardnumber': cardnumber,
-            })
-        except Exception as e:
-            print("Error inserting data:", e)
+        # 检查是否是删除操作
+        delete_id = request.form.get('delete_id')
+        if delete_id:
+            # 执行删除操作
+            try:
+                dbs.bankcard.delete_one({'_id': ObjectId(delete_id)})
+                flash('Card deleted successfully.')
+            except Exception as e:
+                print(f"Error deleting card: {e}")
+                flash('Error occurred while deleting the card.')
+            return redirect(url_for('member_dashboard'))
+        
+
+        # 处理其他 POST 请求（例如添加银行卡）
+        bank = request.form.get('bank')
+        branch = request.form.get('branch')
+        bankprovince = request.form.get('bankprovince')
+        accountname = request.form.get('accountname')
+        cardnumber = request.form.get('cardnumber')
+
+        if bank and branch and bankprovince and accountname and cardnumber:
+            try:
+                dbs.bankcard.insert_one({
+                    'account': session['account'],
+                    'bank': bank,
+                    'branch': branch,
+                    'bankprovince': bankprovince,
+                    'accountname': accountname,
+                    'cardnumber': cardnumber,
+                })
+            except Exception as e:
+                print("Error inserting data:", e)
+
+        return redirect(url_for('member_dashboard'))
 
     # 从数据库获取数据
-    cards = list(dbs.bankcard.find())
+    specific_account = session.get('account', '')
+    cards = list(dbs.bankcard.find({"account": specific_account}))
     member_data = dbs.bittop_member.find_one({'_id': ObjectId(session['id'])}, {'password': 0})
-
-    cards = [{'accountname': card['accountname'], 'bank': card['bank'], 'branch': card['branch'],'bankprovince': card['bankprovince'],'cardnumber': card['cardnumber'],} for card in cards]
-
-
-    # 生成 QR Code
-    invited_code = member_data.get('account', '')
-    generate_qr_code(invited_code)  # 假设已定义
+    for card in cards:
+        card['_id'] = str(card['_id'])
 
     # 渲染模板并传递数据
     return render_template('member_dashboard.html', member_data=member_data, cards=cards)
-    
+
 
 
 # 假设已定义 generate_qr_code 函数
@@ -1460,6 +1503,74 @@ def generate_qr_code(invited_code):
 #         return render_template('profile.html', member_data=member_data)
 #     else:
 #         return redirect('login')
+@app.route('/member_card', methods=['POST', 'GET'])
+def member_card():
+        if request.method == 'POST':
+            real_coin = request.form['real_coin']
+            bonus = request.form['bonus']
+            bonus_rate = request.form['bonus_rate']
+            name = request.form['name']
+            coin = int(request.form['coin'])
+            id = request.form['id']
+            bankAccount = request.form['bankAccount']
+
+            dbs.member_card.update_one(
+                {
+                    '_id': ObjectId(id)
+                },
+                {
+                    '$set': {
+                        'name': name,
+                        'coin': coin,
+                        'bankAccount': bankAccount,
+                        'real_coin': int(real_coin),
+                        'bonus': float(bonus),
+                        'bonus_rate': float(bonus_rate)
+                    }
+                }
+            )
+            return redirect('member_card')
+
+        else:
+            if request.args.get('methods') == 'delete':
+                dbs.member_card.delete_one(
+                    {
+                        '_id': ObjectId(request.args.get('id'))
+                    }
+                )
+            current_page = request.args.get('page')
+            skip = 0
+            per = 4
+            if current_page != None:
+                skip = per * (int(current_page)-1)
+            else:
+                current_page = 1
+            member_data = []
+            member_len = dbs.member_card.count_documents({})
+
+            page_data = {}
+            if member_len % per == 0:
+                all_page = member_len // per
+            else:
+                all_page = (member_len // per) + 1
+            page_data['all_page'] = all_page
+            page_data['current_page'] = current_page
+            
+            member_find = dbs.member_card.find(
+               {
+                    'is_verify': 1
+                },
+               {
+                    'password': 0,
+                    'status': 0
+                }
+               )
+            for doc in member_find:
+                doc['_id'] = str(doc['_id'])
+                member_data.append(doc)
+
+            return render_template("member_card.html", member_data=member_data,page_data=page_data)
+        return redirect('member_card')
 
 
 @app.route('/logout')
@@ -1517,6 +1628,8 @@ def register():
         name = request.form['name']
         resetPassword = request.form['resetPassword']
         invitedCode = request.form['invitedCode']
+        display_name = request.form['display_name']
+
 
         account_repeat = dbs.bittop_member.find_one({'account': account})
         if account_repeat != None:
@@ -1538,7 +1651,8 @@ def register():
             'status': False,
             'is_verify': 0,
             'salt': salt,
-            'invitedCode':invitedCode
+            'invitedCode':invitedCode,
+            'display_name':display_name
         })
 
         return render_template('success.html')

@@ -43,6 +43,7 @@
 
   }
 
+
   button {
     width: 150px;
     /* 设置按钮宽度 */
@@ -330,8 +331,26 @@
   </li>
   <li style="opacity: 0;">
   </li>
-</ul>
+  <!-- <li>
+    <i class='bx bxs-credit-card'></i>
+      <span class="text">
+      <p>收款卡1</p>
+      <h3>3</h3>
+    </span>
+  </li>
+  <li>
+    <i class='bx bxs-credit-card'></i>
+      <span class="text">
+      <p >新增收款卡</p>
+      <i class='bx bxs-plus-circle' ></i>
+      </span>
+  </li>
+  <li style="opacity: 0;">
+  </li>
+  <li style="opacity: 0;">
+  </li> -->
 
+</ul>
 <button id="add-card-button" class="recharge-button2">新增收款卡</button>
 
 <!-- 新增收款卡模态窗口，初始隐藏 -->
@@ -339,7 +358,7 @@
 
   <div class="modal-content">
     <span class="close">&times;</span>
-    <form id="add-card-form" action="/member_dashboard" method="POST">
+    <form id="add-card-form" action="/member_dashboard" method="POST" onsubmit="refreshPage();">
       <!-- 表单内容 -->
       <h2>新增银行卡信息</h2>
       <div class="form-group">
@@ -529,7 +548,7 @@
         <input type="text" id="accountname" name="accountname" required>
       </div>
       <div class="form-group">
-        <label for="cardnumber">银行卡号:</label>
+        <label for="cardnumber">账号:</label>
         <input type="text" id="cardnumber" name="cardnumber" required>
       </div>
       <button type="submit">送出</button>
@@ -537,44 +556,78 @@
   </div>
 </div>
 <div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>户名</th>
-        <th>银行名称</th>
-        <th>账号</th>
-        <th>银行省份</th>
-        <th>银行支行</th>
-        <th>编辑</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- 确保您的 for 循环语法正确，并且在这个循环内部 -->
-      {% for card in cards %}
-      <tr>
+
+  <body>
+    <table>
+      <thead>
+        <tr>
+          <th>户名</th>
+          <th>银行名称</th>
+          <th>银行支行</th>
+          <th>账号</th>
+          <th>银行省份</th>
+          <th>编辑</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for card in cards %}
+        <tr>
           <td>{{ card.accountname }}</td>
           <td>{{ card.bank }}</td>
+          <td>{{ card.branch }}</td>
           <td>{{ card.cardnumber }}</td>
           <td>{{ card.bankprovince }}</td>
-          <td>{{ card.branch }}</td>
-        <td>
-          <!-- 这里的编辑和删除链接需要对应的路由和逻辑来处理 -->
-          <a href="javascript:void(0);" onclick="editCard('{{ cards._id }}')">编辑</a>
-          <!-- 确保您有一个删除卡片的路由和逻辑 -->
-          <a href="/delete_card/{{ cards._id }}">删除</a>
-        </td>
-      </tr>
-      {% else %}
-      <!-- 如果没有卡片数据，则显示消息 -->
-      <tr>
-        <td colspan="6">没有找到卡片数据。</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<script>
+          <td>
+            <form action="{{ url_for('member_dashboard') }}" method="post">
+              <input type="hidden" name="delete_id" value="{{ card._id }}">
+              <input type="submit" value="删除" style="font-size: 20px; font-weight: bold; color: black;">
+            </form>
+          </td>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
 
+</div>
+
+
+<script>
+  function openEditModal(cardData) {
+    var card = JSON.parse(cardData);
+    // 填充模态窗口的表单字段
+    document.getElementById('edit-card-id').value = card._id;
+    document.getElementById('edit-bank').value = card.bank;
+    // ... 为其他字段设置值 ...
+
+    // 显示模态窗口
+    var modal = document.getElementById('edit-card-modal');
+    modal.style.display = 'block';
+  }
+
+  function closeEditModal() {
+    var modal = document.getElementById('edit-card-modal');
+    modal.style.display = 'none';
+  }
+
+
+  document.getElementById('add-card-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var formData = new FormData(this);
+
+    fetch('/member_dashboard', {
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        // 假设返回的数据包含新添加的银行卡信息
+        addCardToTable(data.newCard);
+      })
+      .catch(error => console.error('Error:', error));
+  });
 
 
   function copyLink() {
@@ -676,49 +729,12 @@
     modal.style.display = 'none';
     form.reset();
   }
-  function refreshTable(cards) {
-  var tbody = document.querySelector('.table-container table tbody');
 
-  // 为每张卡片创建一个行元素
-  cards.forEach(card => {
-    // 检查卡片是否已经在表格中
-    if (!document.querySelector(`tr[data-cardnumber="${card.cardnumber}"]`)) {
-      var row = document.createElement('tr');
-      row.setAttribute('data-cardnumber', card.cardnumber); // 用卡号作为唯一标识
-
-      row.innerHTML = `<td>${card.accountname}</td>
-                       <td>${card.bank}</td>
-                       <td>${card.cardnumber}</td>
-                       <td>${card.bankprovince}</td>
-                       <td>${card.branch}</td>
-                       <td>编辑和删除链接</td>`;
-      tbody.appendChild(row); // 将新行添加到表格
-    }
-  });
-}
-
-  // 修改表单提交事件处理程序
-  document.getElementById('add-card-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    var formData = new FormData(this);
-
-    fetch('/member_dashboard', {
-      method: 'POST',
-      body: formData
-    })
-      .then(response => response.json())
-      .then(data => {
-        // 假设服务器返回所有银行卡的列表
-        if (data.cards) {
-          refreshTable(data.cards);
-        } else {
-          console.error('No cards returned from server.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while adding the card.');
-      });
-  });
 </script>
+<script type="text/javascript">
+  function refreshPage() {
+      window.location.reload();
+  }
+</script>
+
 {% endblock %}
