@@ -1,4 +1,4 @@
-{% extends "admin_base.html" %}
+{% extends "member_base.html" %}
 
 {% block title %}後台管理-產品{% endblock %}
 
@@ -186,7 +186,7 @@
                 <td>[[ item.factory_bank ]]</td>
                 <td>
                   <a @click="tempProduct = {...item}, modalControl(true, '編輯')" href="javascript:;">編輯</a>
-                  <a class="delete" :href="`/admin_product?methods=delete&id=${[[item._id]]}`">刪除</a>
+                  <a class="delete" :href="`/member_product=delete&id=${[[item._id]]}`">刪除</a>
                 </td>
               </tr>
             </tbody>
@@ -196,7 +196,7 @@
     </div>
     <div v-show="is_modal" class="add-modal" v-cloak>
       <h2>[[ modal_title ]]订单</h2>
-      <form action="/admin_product" method="POST">
+      <form action="/member_product" method="POST">
         <div class="form-control">
           <input type="text" name="desc" placeholder="USDT数量" v-model="tempProduct.desc">
         </div>

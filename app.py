@@ -1313,7 +1313,69 @@ def admin_product():
     else:
         return redirect('admin_login')
 
+@app.route('/member_product', methods=['GET', 'POST'])
+def member_product():
+    if 'display_name' in session:
+        if request.method == 'POST':
+            potp = request.form['potp']
+            potp_result = verify_potp(potp)
+            potp_result = True
+            if potp_result == True:
+                name = request.form['name']
+                price = request.form['price']
+                desc = request.form['desc']
+                factory_name = request.form['factory_name']
+                factory_bank = request.form['factory_bank']
 
+                if request.form['id'] == '':
+                    dbs.product.insert_one(
+                        {
+                            'name': name,
+                            'price': price,
+                            'desc': desc,
+                            'factory_name': factory_name,
+                            'factory_bank': factory_bank,
+                            'is_buy': False
+                        }
+                    )
+                else:
+                    dbs.product.update_one(
+                        {
+                            '_id': ObjectId(request.form['id'])
+                        },
+                        {
+                            '$set': {
+                                'name': name,
+                                'price': price,
+                                'desc': desc,
+                                'factory_name': factory_name,
+                                'factory_bank': factory_bank
+                            }
+                        }
+                    )
+
+                return redirect('member_product')
+            else:
+                return redirect('member_product')
+        else:
+            if request.args.get('methods') == 'delete':
+                dbs.product.delete_one(
+                    {
+                        '_id': ObjectId(request.args.get('id'))
+                    }
+                )
+            product_data = []
+            product_find = dbs.product.find()
+            for doc in product_find:
+                doc['_id'] = str(doc['_id'])
+                if doc['is_buy'] == True:
+                    doc['is_buy'] = 1
+                else:
+                    doc['is_buy'] = 0
+                product_data.append(doc)
+            return render_template('member_product.html', product_data=product_data)
+    else:
+        return redirect('member_product')
 
 
 
