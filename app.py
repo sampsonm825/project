@@ -1194,6 +1194,11 @@ def admin_login():
             return redirect('admin_dashboard')
         return render_template('admin_login.html')
 
+@app.route('/memberdousdt', methods=['GET', 'PSOT'])
+def memberdousdt():
+    return render_template('memberdousdt.html')
+
+
 @app.route('/rule1', methods=['GET', 'PSOT'])
 def rule1():
     return render_template('rule1.html')
@@ -1315,58 +1320,64 @@ def admin_product():
 
 @app.route('/member_product', methods=['GET', 'POST'])
 def member_product():
-    if 'display_name' in session:
+    if 'account' in session:
         if request.method == 'POST':
-            potp = request.form['potp']
-            potp_result = verify_potp(potp)
-            potp_result = True
-            if potp_result == True:
-                name = request.form['name']
-                price = request.form['price']
-                desc = request.form['desc']
-                factory_name = request.form['factory_name']
-                factory_bank = request.form['factory_bank']
+            # potp = request.form['potp']
+            # potp_result = verify_potp(potp)
+            # potp_result = True
+            # if potp_result == True:
+                account = session.get('account', 'DefaultAccount')
+                usdt = session.get('USDT', 'DefaultAccount')
+                sell_usdt = request.form['sell_usdt']
+                price = float(request.form['price'])
+                total = request.form['total']
+                min_limit = request.form['min_limit']
+                max_limit = request.form['max_limit']
+                offtime = request.form['offtime']
 
                 if request.form['id'] == '':
-                    dbs.product.insert_one(
+                    dbs.member_usdt.insert_one(
                         {
-                            'name': name,
+                            'account':account,
+                            'sell_usdt': sell_usdt,
                             'price': price,
-                            'desc': desc,
-                            'factory_name': factory_name,
-                            'factory_bank': factory_bank,
+                            'total': total,
+                            'min_limit': min_limit,
+                            'max_limit': max_limit,
+                            'offtime':offtime,
                             'is_buy': False
                         }
                     )
                 else:
-                    dbs.product.update_one(
+                    dbs.member_usdt.update_one(
                         {
                             '_id': ObjectId(request.form['id'])
                         },
                         {
                             '$set': {
-                                'name': name,
+                                'sell_usdt': sell_usdt,
                                 'price': price,
-                                'desc': desc,
-                                'factory_name': factory_name,
-                                'factory_bank': factory_bank
+                                'total': total,
+                                'min_limit': min_limit,
+                                'max_limit': max_limit,
+                                'offtime':offtime,
                             }
                         }
                     )
 
                 return redirect('member_product')
-            else:
-                return redirect('member_product')
+            
         else:
             if request.args.get('methods') == 'delete':
-                dbs.product.delete_one(
+                dbs.member_usdt.delete_one(
                     {
                         '_id': ObjectId(request.args.get('id'))
                     }
                 )
             product_data = []
-            product_find = dbs.product.find()
+            product_find = dbs.member_usdt.find()
             for doc in product_find:
+                print(doc)
                 doc['_id'] = str(doc['_id'])
                 if doc['is_buy'] == True:
                     doc['is_buy'] = 1
@@ -1375,8 +1386,32 @@ def member_product():
                 product_data.append(doc)
             return render_template('member_product.html', product_data=product_data)
     else:
-        return redirect('member_product')
+        return redirect('member_dashboard')
 
+@app.route('/api/get_my_product_data')
+def get_my_product_data():
+    if 'account' not in session:
+        return jsonify({'error': '未登录'}), 401
+    # 数据库查询逻辑...
+    user_account = session['account']
+    connection_string = 'mongodb+srv://samsonm825:g4zo1j6y94@cluster0.ow4o5g4.mongodb.net/?retryWrites=true&w=majority'
+    client = MongoClient(connection_string)
+    dbs = client.bittop
+    # 从数据库获取数据
+    my_product_data = list(dbs.member_usdt.find({"account": user_account}))
+    for item in my_product_data:
+        item['_id'] = str(item['_id'])
+    return jsonify(my_product_data)
+
+@app.route('/api/get-all-product-data')
+def get_all_product_data():
+    connection_string = 'mongodb+srv://samsonm825:g4zo1j6y94@cluster0.ow4o5g4.mongodb.net/?retryWrites=true&w=majority'
+    client = MongoClient(connection_string)
+    dbs = client.bittop
+    all_product_data = list(dbs.member_usdt.find())
+    for item in all_product_data:
+        item['_id'] = str(item['_id'])
+    return jsonify(all_product_data)
 
 
 @app.route('/order_prove', methods=['POST'])
