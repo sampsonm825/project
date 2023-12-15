@@ -1,0 +1,96 @@
+{% extends "member_base.html" %}
+
+{% block title %}後台-訂單管理{% endblock %}
+
+{% block style %}
+<style>
+ 
+
+  .edit-modal {
+    position: absolute;
+    width: 40%;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 15px;
+    background-color: #fff;
+    border: 2px solid #000;
+    opacity: 1;
+    z-index: 99;
+  }
+
+  form {
+    width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+  }
+
+  .form-control {
+    margin-bottom: 15px;
+  }
+
+  .form-control input {
+    width: 100%;
+    padding: 8px 10px;
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  button {
+    padding: 4px 6px;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  button.close {
+    background-color: rgb(141, 33, 33);
+  }
+
+  button[type="submit"] {
+    background-color: rgb(60, 60, 122);
+  }
+
+  
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="head-title">
+  <div class="left">
+    <h1>收支记录</h1>
+  </div>
+</div>
+<div class="table-data">
+  <div class="order">
+    <div class="scroll-table">
+      <table>
+        <thead>
+          <tr>
+            <th>账号</th>
+            <th>USDT</th>
+            <th>交易类型</th>
+            <th>USDT余额</th>
+            <th>时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in record_data %}
+          <tr>
+            <td>{{ item.account }}</td>
+            <td>{{ item.oId }}</td>
+            <td>{{ item.tradetype }}</td>
+            <td>{{ item.USDT }}</td>
+            <td>{{ item.time }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

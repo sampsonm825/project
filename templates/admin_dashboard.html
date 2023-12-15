@@ -49,32 +49,28 @@
     <i class='bx bxs-group' ></i>
     <span class="text">
       <p>会员数</p>
-      <h3>28</h3>
-    </span>
-  </li>
-  <li>
-    <i class='bx bxs-group' ></i>
-    <span class="text">
-      <p>今日新增会员</p>
-      <h3>0</h3>
+      <h3 id="memberCount">加载中...</h3>
+
     </span>
   </li>
   <li style="opacity: 0;">
   </li>
   <li style="opacity: 0;">
   </li>
+  <li style="opacity: 0;">
+  </li>
   <li>
-    <i class='bx bxs-calendar-check' ></i>
+    <i class='bx bxs-calendar-check'></i>
     <span class="text">
       <p>进行中的订单</p>
-      <h3>3</h3>
+      <h3 id="pendingOrders">加载中...</h3>
     </span>
   </li>
   <li>
-    <i class='bx bxs-calendar-check' ></i>
+    <i class='bx bxs-calendar-check'></i>
     <span class="text">
       <p>今日总交易U量</p>
-      <h3>102</h3>
+      <h3 id="totalUsdt">加载中...</h3>
     </span>
   </li>
   <li style="opacity: 0;">
@@ -83,4 +79,47 @@
   </li>
 
 </ul>
+
+<script>
+  function updateMemberCount() {
+    fetch('/get_member_count')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('memberCount').innerText = data.count;
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // 初始加载时更新会员数
+  updateMemberCount();
+
+  // 可以设置定时器定期更新会员数
+  setInterval(updateMemberCount, 10000); // 每10秒更新一次
+</script>
+<script>
+  function updatePendingOrders() {
+    fetch('/get_pending_orders_count')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('pendingOrders').innerText = data.count;
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // 初始加载时更新进行中的订单数
+  updatePendingOrders();
+</script>
+<script>
+  function updateTotalUsdt() {
+    fetch('/get_total_usdt')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('totalUsdt').innerText = data.total_usdt;
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // 初始加载时更新今日总交易U量
+  updateTotalUsdt();
+</script>
 {% endblock %}

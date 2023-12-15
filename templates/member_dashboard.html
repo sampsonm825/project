@@ -225,36 +225,7 @@
 {% endblock %}
 
 {% block main %}
-<div id="recharge-modal" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-    <form id="recharge-form">
-      <div class="form-group">
-        <label for="currency">货币:</label>
-        <select id="currency" name="currency">
-          <option value="usdt">USDT</option>
-          <!-- 添加其他货币选项 -->
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="network">提现网络:</label>
-        <select id="network" name="network">
-          <option value="trc20">TRC20</option>
-          <option value="trc20">ERC20</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="qrcode">扫描充值:</label>
-        <img id="qrcode" src="{{ url_for('static', filename='path/to/your/qrcode.png') }}" alt="QR Code"
-          style="width:100px;height:100px;">
-      </div>
-      <div class="form-group">
-        <input type="text" value="您的QR Code地址" readonly>
-      </div>
-      <input type="submit" value="充值">
-    </form>
-  </div>
-</div>
+
 <div class="head-title">
   <div class="left">
     <h1>资讯总览</h1>
@@ -281,7 +252,48 @@
       <h3>{{ session.USDT }}</h3>
       <!-- 在 HTML 中使用添加的 CSS 类 -->
       <button onclick="recharge()" class="recharge-button">快速充值</button>
-
+      <div id="recharge-modal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <form id="recharge-form" method="post" action="/recharge"> <!-- 确保使用正确的action URL -->
+            <div class="form-group">
+              <label for="currency">货币:</label>
+              <select id="currency" name="currency">
+                <option value="usdt">USDT</option>
+                <!-- 添加其他货币选项 -->
+              </select>
+            </div>
+            <div class="recharge-form">
+              <label for="usdtcount">充值币量</label>
+              <input type="text" id="usdtcount" name="usdtcount" required>
+            </div>
+            <div class="recharge-form">
+              <label for="network">选择网络:</label>
+              <select id="network" name="network">
+                <option value="trc20">TRC20</option>
+                <option value="trc20">ERC20</option>
+              </select>
+            </div>
+            <div class="recharge-form">
+              <label for="qrcode">扫描充值:</label>
+              <img id="qrcode" src="{{ url_for('static', filename='path/to/your/qrcode.png') }}" alt="QR Code"
+                style="width:100px;height:100px;">
+            </div>
+            <div class="recharge-form">
+              <input type="text" value="您的QR Code地址" readonly>
+            </div>
+            <div class="recharge-form">
+              <label for="tradecode">交易码</label>
+              <input type="text" id="tradecode" name="tradecode" required>
+            </div>
+            <div class="recharge-form">
+              <label for="tradetime">交易完成时间</label>
+              <input type="text" id="tradetime" name="tradetime" required>
+            </div>
+            <button type="submit">充值完成</button>
+          </form>
+        </div>
+      </div>
 
 
 
@@ -325,7 +337,7 @@
   <li>
     <i class='bx bxs-group'></i>
     <span class="text">
-      <p>二部验证</p>
+      <p>二步验证</p>
       <h3>0</h3>
     </span>
   </li>
@@ -733,8 +745,34 @@
 </script>
 <script type="text/javascript">
   function refreshPage() {
-      window.location.reload();
+    window.location.reload();
   }
+
+  var modal = document.getElementById('recharge-modal');
+  var modal = document.getElementById('add-card-modal');
+
+  // 获取打开模态窗口的按钮元素
+  var btn = document.querySelector('.recharge-button');
+  // 获取 <span> 元素，用于关闭模态窗口
+  var span = document.getElementsByClassName('close')[0];
+
+  // 当用户点击按钮时打开模态窗口
+  btn.onclick = function () {
+    modal.style.display = 'block';
+  }
+
+  // 当用户点击 <span> (x), 关闭模态窗口
+  span.onclick = function () {
+    modal.style.display = 'none';
+  }
+
+  // 当用户点击模态窗口之外的任何地方，关闭它
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
+  
 </script>
 
 {% endblock %}

@@ -4,30 +4,39 @@
 
 {% block style %}
 <style>
-/* 模态框（背景）样式 */
-.modal {
-  display: none; /* 默认隐藏 */
-  position: fixed;
-  z-index: 1; /* 位于顶层 */
-  padding-top: 100px; /* 顶部留白 */
-  left: 0;
-  top: 0;
-  width: 100%; /* 全屏宽 */
-  height: 100%; /* 全屏高 */
-  overflow: auto; /* 如果需要滚动条 */
-  background-color: rgb(0, 0, 0); /* 黑色背景 */
-  background-color: rgba(0, 0, 0, 0.9); /* 黑色背景，透明度 */
-}
+  /* 模态框（背景）样式 */
+  .modal {
+    display: none;
+    /* 默认隐藏 */
+    position: fixed;
+    z-index: 1;
+    /* 位于顶层 */
+    padding-top: 100px;
+    /* 顶部留白 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* 全屏宽 */
+    height: 100%;
+    /* 全屏高 */
+    overflow: auto;
+    /* 如果需要滚动条 */
+    background-color: rgb(0, 0, 0);
+    /* 黑色背景 */
+    background-color: rgba(0, 0, 0, 0.9);
+    /* 黑色背景，透明度 */
+  }
 
-/* 放大图片的样式 */
-.modal-content {
-  margin: auto;
-  display: block;
-  width: 80%;
-  max-width: 700px;
-}
+  /* 放大图片的样式 */
+  .modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+  }
 </style>
 {% endblock %}
+
 
 {% block main %}
 <div class="head-title">
@@ -44,10 +53,7 @@
           <tr>
             <th>账号</th>
             <th>姓名</th>
-            <th>银行/支行</th>
-            <th>卡号</th>
             <th>邀请人</th>
-            <th>卡号截图</th>
             <th>功能</th>
           </tr>
         </thead>
@@ -57,12 +63,10 @@
           <tr>
             <td>{{ item.account }}</td>
             <td>{{ item.name }}</td>
-            <td>{{ item.bankName}} / {{ item.bankBranch}}</td>
-            <td>{{ item.bankCard }}</td>
             <td>{{ item.invitedCode }}</td>
-            <td>
-              <img src="{{ item.img_data[0] }}" style="cursor: pointer;">
-            </td>
+            {% if item.img_data %}
+            <img src="{{ item.img_data[0] }}" style="cursor: pointer;">
+            {% endif %}
             <td>
               <a href="/admin_verify?id={{ item._id }}&is_verify=1">驗證成功</a>
               <a class="delete" href="/admin_verify?id={{ item._id }}&is_verify=2">驗證失敗</a>
@@ -76,31 +80,31 @@
 </div>
 
 <!-- 模态框，用于展示放大图片 -->
-<div id="myModal" class="modal">
+<!-- <div id="myModal" class="modal">
   <img class="modal-content" id="img01">
-</div>
+</div> -->
 
 <script>
-// JavaScript代码
-window.onload = function() {
-  // 获取模态框元素
-  var modal = document.getElementById("myModal");
+  // JavaScript代码
+  window.onload = function () {
+    // 获取模态框元素
+    var modal = document.getElementById("myModal");
 
-  // 获取模态框中的<img>元素
-  var modalImg = document.getElementById("img01");
+    // 获取模态框中的<img>元素
+    // var modalImg = document.getElementById("img01");
 
-  // 为每个缩略图添加点击事件
-  document.querySelectorAll('td img').forEach(img => {
-    img.onclick = function(){
-      modal.style.display = "block";
-      modalImg.src = this.src;
+    // // 为每个缩略图添加点击事件
+    // document.querySelectorAll('td img').forEach(img => {
+    //   img.onclick = function(){
+    //     modal.style.display = "block";
+    //     modalImg.src = this.src;
+    //   }
+    // });
+
+    // 当用户点击模态框外的区域时，关闭模态框
+    modal.onclick = function () {
+      modal.style.display = "none";
     }
-  });
-
-  // 当用户点击模态框外的区域时，关闭模态框
-  modal.onclick = function() {
-    modal.style.display = "none";
   }
-}
 </script>
 {% endblock %}

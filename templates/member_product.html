@@ -191,7 +191,7 @@
                 <td>[[ item.offtime ]]</td>
                 <td>
                   <a @click="tempProduct = {...item}, modalControl(true, '编辑')" href="javascript:;">编辑</a>
-                  <a class="delete" :href="`/member_product=delete&id=${[[item._id]]}`">刪除</a>
+                  <a class="delete" :href="`/member_product?methods=delete&id=${item._id}`">刪除</a>
                 </td>
               </tr>
             </tbody>
@@ -252,9 +252,9 @@
           <label for="max_limit">最高单笔限额 :</label>
           <input type="text" name="max_limit" placeholder="最高单笔限额" v-model="tempProduct.max_limit">
         </div>
-        <div class="form-control">
+        <!-- <div class="form-control">
           <input type="text" name="offtime" placeholder="自动下架时间" v-model="tempProduct.offtime">
-        </div>
+        </div> -->
         <!-- <div class="form-control">
           <input type="text" name="potp" placeholder="Google OTP">
         </div> -->

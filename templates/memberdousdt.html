@@ -27,17 +27,86 @@
   }
 
 
+  .modal-overlay {
+    position: fixed;
+    /* 固定定位 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* 半透明背景 */
+    z-index: 1000;
+    /* 高于页面上的其他元素 */
+    display: none;
+    /* 默认不显示 */
+  }
+
+  /* 模态窗口样式 */
   .add-modal {
-    position: absolute;
-    width: 40%;
-    top: 40%;
+    display: block;
+    /* 显示模态窗口 */
+    position: fixed;
+    /* 固定定位 */
+    top: 50%;
+    /* 居中定位 */
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 15px;
+    /* 从中心向上和向左偏移 */
+    width: 50%;
+    /* 宽度 */
+    height: auto;
+    /* 高度自动 */
     background-color: #fff;
-    border: 2px solid #000;
-    z-index: 99;
+    /* 背景色 */
+    padding: 20px;
+    /* 内边距 */
+    border-radius: 5px;
+    /* 圆角边框 */
+    z-index: 1001;
+    /* 确保在覆盖层上方 */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    /* 阴影效果 */
+    overflow: auto;
+    /* 如果需要滚动条 */
   }
+
+
+
+
+  .close {
+    color: #aaa;
+    position: absolute;
+    /* 绝对定位 */
+    right: 10px;
+    /* 距离右侧10px */
+    top: 10px;
+    /* 距离顶部10px */
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  select,
+  input[type="text"],
+  input[type="submit"] {
+    width: 100%;
+    /* 宽度为100% */
+    padding: 10px;
+    margin-top: 8px;
+    /* 顶部间距 */
+    margin-bottom: 16px;
+    /* 底部间距 */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    /* 圆角 */
+  }
+
+  label {
+    display: inline-block;
+    margin-right: 10px;
+  }
+
 
 
   form {
@@ -64,6 +133,8 @@
   button {
     padding: 4px 6px;
     color: white;
+    background-color: rgb(60, 60, 122);
+
     text-align: center;
     cursor: pointer;
   }
@@ -139,7 +210,7 @@
     display: block;
     width: 20%;
     color: #000000;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: bolder;
     background-color: rgba(247, 52, 68, 0.692);
     padding: 6px 10px;
@@ -147,7 +218,98 @@
     margin-right: 0;
     margin-left: auto;
     margin-bottom: 30px;
+    font-weight: bold;
   }
+
+  label {
+    display: block;
+    /* 标签显示为块级元素 */
+    margin-bottom: 5px;
+    /* 标签和输入框之间的间距 */
+  }
+
+  /* 输入框和下拉菜单样式 */
+  input[type="text"],
+  select {
+    width: 100%;
+    /* 占满容器宽度 */
+    padding: 8px;
+    /* 内边距 */
+    margin-bottom: 16px;
+    /* 底部间距 */
+    border: 1px solid #ddd;
+    /* 边框 */
+    border-radius: 4px;
+    /* 圆角 */
+  }
+
+  /* 提交按钮样式 */
+  input[type="submit"] {
+    width: auto;
+    /* 自动宽度 */
+    padding: 10px 15px;
+    /* 内边距 */
+    background-color: #5d9cec;
+    /* 背景颜色 */
+    color: white;
+    /* 文字颜色 */
+    border: none;
+    /* 无边框 */
+    border-radius: 4px;
+    /* 圆角 */
+    cursor: pointer;
+    /* 鼠标手势 */
+  }
+
+  input[type="submit"]:hover {
+    background-color: #4a8bdb;
+    /* 鼠标悬浮时的背景颜色 */
+  }
+
+  .modal-overlay {
+    display: none;
+    /* 默认不显示，当触发弹窗时通过JavaScript设置为block */
+    position: fixed;
+    /* 固定位置 */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* 黑色半透明背景 */
+    z-index: 1;
+    /* 确保它位于页面内容之上 */
+  }
+
+  /* Modal Content/Box */
+  .modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%;
+    /* Could be more or less, depending on screen size */
+    z-index: 2;
+    /* Sit on top of the overlay */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    animation-name: animatetop;
+    animation-duration: 0.4s
+  }
+
+  /* Add Animation */
+  @keyframes animatetop {
+    from {
+      top: -300px;
+      opacity: 0
+    }
+
+    to {
+      top: 0;
+      opacity: 1
+    }
+  }
+
 
   [v-cloak] {
     display: none !important;
@@ -156,14 +318,58 @@
 {% endblock %}
 
 {% block main %}
+<div class="modal-overlay" id="modal-overlay" @click="closeModal"></div>
 <div id="app">
   <div class="head-title">
     <div class="left">
-      <h1>订单列表</h1>
+      <h1>充值订单列表</h1>
     </div>
   </div>
   <div class="product">
-    <a @click="modalControl(true, '新增'), tempProduct = {}" class="open add_btn" href="javascript:;">新增订单</a>
+    <a @click="modalControl(true, '新增'), tempProduct = {}" class="open add_btn" href="javascript:;">新增充值订单</a>
+    <div v-if="is_modal" class="add-modal">
+      <!-- 表单内容 -->
+      <form @submit.prevent="submitForm">
+
+        <div class="form-control">
+          <label for="currency">货币:</label>
+          <select id="currency" name="currency">
+            <option value="usdt">USDT</option>
+            <!-- 添加其他货币选项 -->
+          </select>
+        </div>
+        <div class="form-control">
+          <label for="usdtcount">充值币量</label>
+          <input type="text" id="usdtcount" name="usdtcount" v-model="tempProduct.usdtcount" required>
+        </div>
+        <div class="form-control">
+          <label for="network">选择网络:</label>
+          <select id="network" name="network">
+            <option value="trc20">TRC20</option>
+            <option value="trc20">ERC20</option>
+        </div>
+        <div class="form-control">
+          <label for="qrcode">扫描充值:</label>
+          <img id="qrcode" src="{{ url_for('static', filename='path/to/your/qrcode.png') }}" alt="QR Code"
+            style="width:100px;height:100px;">
+        </div>
+        <div class="form-control">
+          <input type="text" value="钱包地址" readonly>
+        </div>
+        <div class="form-control">
+          <label for="tradecode">交易码</label>
+          <input type="text" id="tradecode" name="tradecode" v-model="tempProduct.tradecode" required>
+        </div>
+        <div class="form-control">
+          <label for="tradetime">交易完成时间</label>
+          <input type="text" id="tradetime" name="tradetime" v-model="tempProduct.tradetime" required>
+        </div>
+        <div class="button-group">
+          <button type="button" @click="modalControl(false)">取消</button>
+          <button type="submit">提交</button>
+        </div>
+      </form>
+    </div>
     <div class="table-data">
       <div class="order">
         <div class="scroll-table">
@@ -172,32 +378,76 @@
               <tr>
                 <th>会员名称</th>
                 <th>USDT数量</th>
-                <th>汇率(单价)</th>
-                <th>总价(CNY)</th>
-                <th>最低单笔限额</th>
-                <th>最高单笔限额</th>
-                <th>自动下架时间</th>
+                <th>交易码</th>
+                <th>交易完成时间</th>
                 <th>功能</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in my_product_data" :key="item._id">
+              <tr v-for="(item, index) in productData" :key="item._id">
                 <td>[[ item.account ]]</td>
-                <td>[[ item.sell_usdt ]]</td>
-                <td>[[ item.price ]]</td>
-                <td>[[ item.total ]]</td>
-                <td>[[ item.min_limit ]]</td>
-                <td>[[ item.max_limit ]]</td>
-                <td>[[ item.offtime ]]</td>
+                <td>[[ item.usdtcount ]]</td>
+                <td>[[ item.tradecode ]]</td>
+                <td>[[ item.tradetime ]]</td>
                 <td>
                   <a @click="tempProduct = {...item}, modalControl(true, '编辑')" href="javascript:;">编辑</a>
-                  <a class="delete" :href="`/member_product=delete&id=${[[item._id]]}`">刪除</a>
+                  <a class="delete" :href="`/memberdousdt?methods=delete&id=${item._id}`">删除</a>
                 </td>
               </tr>
             </tbody>
           </table>
+
         </div>
+
       </div>
+
+    </div>
+
+  </div>
+  <div class="head-title">
+    <div class="left">
+      <h1>提领申请列表</h1>
+    </div>
+  </div>
+
+  <div class="product">
+    <a @click="modalControlWithdraw(true, '新增'), withdrawProduct = {}" class="open add_btn"
+      href="javascript:;">新增提领申请</a>
+    <div v-if="is_modal_withdraw" class="add-modal">
+      <form @submit.prevent="submitWithdrawForm">
+
+        <div class="form-control">
+          <label for="currency">货币:</label>
+          <select id="currency" name="currency">
+            <option value="usdt">USDT</option>
+            <!-- 添加其他货币选项 -->
+          </select>
+        </div>
+        <div class="form-control">
+          <label for="usdtout">提领币量</label>
+          <input type="text" id="usdtout" name="usdtout" v-model="withdrawProduct.usdtout" required>
+        </div>
+        <div class="form-control">
+          <label for="network">选择网络:</label>
+          <select id="network" name="network">
+            <option value="trc20">TRC20</option>
+            <option value="trc20">ERC20</option>
+          </select>
+        </div>
+
+        <div class="form-control">
+          <label for="usdtaddress">提领地址</label>
+          <input type="text" id="usdtaddress" name="usdtaddress" v-model="withdrawProduct.usdtaddress" required>
+        </div>
+        <div class="form-control">
+          <label for="outtime">提领申请时间</label>
+          <input type="text" id="outtime" name="outtime" v-model="withdrawProduct.outtime" required>
+        </div>
+        <div class="button-group">
+          <button type="button" @click="modalControlWithdraw(false)">取消</button>
+          <button type="submit">提交</button>
+        </div>
+      </form>
     </div>
     <div class="table-data">
       <div class="order">
@@ -206,116 +456,149 @@
             <thead>
               <tr>
                 <th>会员名称</th>
-                <th>USDT数量</th>
-                <th>汇率(单价)</th>
-                <th>总价(CNY)</th>
-                <th>最低单笔限额</th>
-                <th>最高单笔限额</th>
-                <th>自动下架时间</th>
+                <th>提领USDT数量</th>
+                <th>申请地址</th>
+                <th>申请时间</th>
+                <th>功能</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(item, index) in all_product_data" :key="item._id">
+              <tr v-for="(item, index) in withdrawData" :key="item._id">
                 <td>[[ item.account ]]</td>
-                <td>[[ item.sell_usdt ]]</td>
-                <td>[[ item.price ]]</td>
-                <td>[[ item.total ]]</td>
-                <td>[[ item.min_limit ]]</td>
-                <td>[[ item.max_limit ]]</td>
-                <td>[[ item.offtime ]]</td>
+                <td>[[ item.usdtout ]]</td>
+                <td>[[ item.usdtaddress ]]</td>
+                <td>[[ item.outtime ]]</td>
+                <td>
+                  <a @click="withdrawProduct = {...item}, modalControlWithdraw(true, '编辑')" href="javascript:;">编辑</a>
+                  <a class="delete" :href="`/memberdousdt?methods=delete&id=${item._id}&collection=usdtminus`">删除</a>
+                </td>
               </tr>
             </tbody>
           </table>
-        </div>
-      </div>
-    </div>
-    <div v-show="is_modal" class="add-modal" v-cloak>
-      <h2>[[ modal_title ]]订单</h2>
-      <form action="/member_product" method="POST">
-        <div class="form-control">
-          <label for="sell_usdt">USDT数量:</label>
-          <input type="text" name="sell_usdt" placeholder="USDT数量" v-model="tempProduct.sell_usdt">
-        </div>
-        <div class="form-control">
-          <label for="price">汇率(单价):</label>
-          <input type="text" name="price" placeholder="汇率(单价)" v-model="tempProduct.price">
-        </div>
-        <div class="form-control">
-          <label for="total">总价(CNY):</label>
-          <input type="text" name="total" placeholder="总价(CNY)" v-model="tempProduct.total">
-        </div>
-        <div class="form-control">
-          <label for="min_limit">最低单笔限额 :</label>
-          <input type="text" name="min_limit" placeholder="最低单笔限额" v-model="tempProduct.min_limit">
-        </div>
-        <div class="form-control">
-          <label for="max_limit">最高单笔限额 :</label>
-          <input type="text" name="max_limit" placeholder="最高单笔限额" v-model="tempProduct.max_limit">
-        </div>
-        <div class="form-control">
-          <input type="text" name="offtime" placeholder="自动下架时间" v-model="tempProduct.offtime">
-        </div>
-        <!-- <div class="form-control">
-          <input type="text" name="potp" placeholder="Google OTP">
-        </div> -->
-        <div class="button-group">
-          <input type="hidden" name="id" v-model="tempProduct._id">
-          <button @click="modalControl(false), tempProduct = {}" type="button" class="add_btn close ">取消</button>
-          <button type="submit">[[ modal_title ]]</button>
+
         </div>
 
-      </form>
+      </div>
+
     </div>
+
   </div>
 </div>
 
+
+
+
+
+
+
 <script src="https://unpkg.com/vue@next"></script>
 <script>
+
+
   const app = Vue.createApp({
     data() {
       return {
-        my_product_data: [], // 当前用户的订单
-        all_product_data: [], // 所有订单
-        is_modal: false,
-        tempProduct: {},
-        modal_title: '',
+        productData: JSON.parse('{{ product_data | safe }}'), // 使用 Flask 传递的数据
+        withdrawData: JSON.parse('{{ withdraw_data | safe }}'), // 新增的 usdtminus 数据
+
+        is_modal: false, // 此处定义 is_modal
+        is_modal_withdraw: false,  // 添加这一行
+
+        tempProduct: {},  // 初始化临时产品对象
+        withdrawProduct: {},
+        modal_title: ''   // 如果您的模板中还用到了 modal_title，也应在此定义
       }
     },
     compilerOptions: {
       delimiters: ["[[", "]]"]
     },
+
     methods: {
+      async submitForm() {
+        try {
+          const response = await fetch('/submit-usdt', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(this.tempProduct)
+          });
+          const result = await response.json();
+          console.log('提交成功:', result);
+          // 处理成功逻辑，如关闭模态窗口
+          this.is_modal = false;
+          location.reload();
+
+        } catch (error) {
+          console.error('提交失败:', error);
+          // 处理错误逻辑
+        }
+      },
+      async submitWithdrawForm() {
+        try {
+          const response = await fetch('/submit-withdraw', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(this.withdrawProduct)
+          });
+          const result = await response.json();
+          console.log('提交成功:', result);
+
+          // 处理成功逻辑，如关闭模态窗口
+          this.is_modal_withdraw = false;  // 确保关闭提领弹窗
+          location.reload();
+
+        } catch (error) {
+          console.error('提交失败:', error);
+          // 处理错误逻辑
+        }
+      },
+
       modalControl(type, fun) {
-        type ? this.is_modal = true : this.is_modal = false
+        document.getElementById('modal-overlay').style.display = type ? 'block' : 'none';
+        this.is_modal = type;
+        type ? this.is_modal = true : this.is_modal = false;
+        console.log("modalControl 被调用，is_modal:", this.is_modal);
         this.modal_title = fun
         if (type && fun === '新增') {
           this.setCurrentTime(); // 设置当前时间
           this.tempProduct = {}; // 重置tempProduct
         }
       },
+      modalControlWithdraw(type, fun) {
+        document.getElementById('modal-overlay').style.display = type ? 'block' : 'none';
+        this.is_modal_withdraw = type;
+        type ? this.is_modal_withdraw = true : this.is_modal_withdraw = false;
+        this.modal_title = fun;
+        if (type && fun === '新增') {
+          this.setCurrentTime();
+          this.withdrawProduct = {};
+        }
+      },
+
       setCurrentTime() {
         const now = new Date();
         const formattedTime = now.toISOString().slice(0, 19).replace('T', ' ');
         this.tempProduct.bank = formattedTime;
       },
+
     },
     created() {
-      // 获取当前用户的订单
-      fetch('/api/get_my_product_data')
-        .then(response => response.json())
-        .then(data => {
-          this.my_product_data = data;
-        })
-        .catch(error => console.error('Error fetching my product data:', error));
+      console.log("在created钩子中，is_modal:", this.is_modal);
+      // 其他代码...
+    },
+    mounted() {
+      console.log("在 mounted 钩子中，is_modal:", this.is_modal);
+      // 其余代码...
+    },
+    closeModal() {
+      this.is_modal = false;
+      this.is_modal_withdraw = false;
+      document.getElementById('modal-overlay').style.display = 'none';
+    },
 
-      // 获取所有订单
-      fetch('/api/get-all-product-data')
-        .then(response => response.json())
-        .then(data => {
-          this.all_product_data = data;
-        })
-        .catch(error => console.error('Error fetching all product data:', error));
-    }
   })
   app.mount('#app')
 </script>

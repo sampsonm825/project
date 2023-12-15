@@ -552,6 +552,16 @@ def admin_log():
     else:
         return redirect('admin_login')
 
+@app.route('/member_log', methods=['GET', 'POST'])
+def member_log():
+    if 'account' in session:
+        record_data = []
+        record_find = dbs.log_record.find({})
+        for doc in record_find:
+            record_data.append(doc)
+        return render_template('member_log.html', record_data=record_data)
+    else:
+        return redirect('login')
 
 # @app.route('/resetPassword', methods=['GET', 'POST'])
 # def resetPassword():
@@ -691,13 +701,13 @@ def admin_user():
             display_name = request.form['display_name']
 
             if id == '':
-                user_data = dbs.admin.find_one({'account': account})
+                user_data = dbs.bittop_admin.find_one({'account': account})
                 if user_data != None:
                     return redirect('admin_user')
                 salt = 'KKJNWSDJIJDJIWWIDJ'
                 password_str = password + salt
                 user_password = hashlib.sha1(password_str.encode('utf-8'))
-                dbs.admin.insert_one({
+                dbs.bittop_admin.insert_one({
                     'name': name,
                     'account': account,
                     'password': user_password.hexdigest(),
@@ -706,12 +716,12 @@ def admin_user():
                 })
                 return redirect('admin_user')
             else:
-                user_data = dbs.admin.find_one({'_id': ObjectId(id)})
+                user_data = dbs.bittop_admin.find_one({'_id': ObjectId(id)})
                 if user_data['password'] != password:
                     password_str = password + user_data['salt']
                     user_password = hashlib.sha1(password_str.encode('utf-8'))
                     password = user_password.hexdigest()
-                dbs.admin.update_one(
+                dbs.bittop_admin.update_one(
                     {
                         '_id': ObjectId(id)
                     },
@@ -726,9 +736,9 @@ def admin_user():
                 return redirect('admin_user')
         else:
             if request.args.get('methods') == 'delete':
-                dbs.admin.delete_one({"_id": ObjectId(request.args.get('id'))})
+                dbs.bittop_admin.delete_one({"_id": ObjectId(request.args.get('id'))})
             user_data = []
-            user_find = dbs.admin.find()
+            user_find = dbs.bittop_admin.find()
             for doc in user_find:
                 doc['_id'] = str(doc['_id'])
                 user_data.append(doc)
@@ -929,7 +939,7 @@ def admin_order():
         return redirect('admin_login')
 
 
-@app.route('/admin_verify', methods=['GET', 'PSOT'])
+@app.route('/admin_verify', methods=['GET', 'POST'])
 def admin_verify():
     if 'display_name' and session['display_name'] == '最高管理者':
         if request.args.get('id'):
@@ -976,26 +986,20 @@ def admin_verify():
 def admin_member():
     if 'display_name' and session['display_name'] == '最高管理者':
         if request.method == 'POST':
-            real_coin = request.form['real_coin']
-            bonus = request.form['bonus']
-            bonus_rate = request.form['bonus_rate']
             name = request.form['name']
-            coin = int(request.form['coin'])
+            USDT = float(request.form['USDT'])
             id = request.form['id']
-            bankAccount = request.form['bankAccount']
+            invitedCode = request.form['invitedCode']
 
-            dbs.member.update_one(
+            dbs.bittop_member.update_one(
                 {
                     '_id': ObjectId(id)
                 },
                 {
                     '$set': {
                         'name': name,
-                        'coin': coin,
-                        'bankAccount': bankAccount,
-                        'real_coin': int(real_coin),
-                        'bonus': float(bonus),
-                        'bonus_rate': float(bonus_rate)
+                        'invitedCode': invitedCode,
+                        'USDT': float(USDT),
                     }
                 }
             )
@@ -1003,7 +1007,7 @@ def admin_member():
 
         else:
             if request.args.get('methods') == 'delete':
-                dbs.member.delete_one(
+                dbs.bittop_member.delete_one(
                     {
                         '_id': ObjectId(request.args.get('id'))
                     }
@@ -1016,7 +1020,7 @@ def admin_member():
             else:
                 current_page = 1
             member_data = []
-            member_len = dbs.member.count_documents({})
+            member_len = dbs.bittop_member.count_documents({})
 
             page_data = {}
             if member_len % per == 0:
@@ -1026,7 +1030,7 @@ def admin_member():
             page_data['all_page'] = all_page
             page_data['current_page'] = current_page
             
-            member_find = dbs.member.find(
+            bittop_member_find = dbs.bittop_member.find(
                {
                     'is_verify': 1
                 },
@@ -1035,7 +1039,7 @@ def admin_member():
                     'status': 0
                 }
                )
-            for doc in member_find:
+            for doc in bittop_member_find:
                 doc['_id'] = str(doc['_id'])
                 member_data.append(doc)
 
@@ -1051,7 +1055,31 @@ def admin_dashboard():
         return render_template('admin_dashboard.html')
     else:
         return redirect('admin_login')
-    
+
+
+@app.route('/get_member_count')
+def get_member_count():
+    member_count = dbs.bittop_member.count_documents({})
+    return jsonify({'count': member_count})
+
+@app.route('/get_pending_orders_count')
+def get_pending_orders_count():
+    pending_orders_count = dbs.member_usdt.count_documents({
+        'is_buy': False
+    })
+
+    return jsonify({'count': pending_orders_count})
+
+@app.route('/get_total_usdt')
+def get_total_usdt():
+    pipeline = [
+        {'$match': {'is_buy': True}},
+        {'$group': {'_id': None, 'total': {'$sum': '$sell_usdt'}}}
+    ]
+    result = list(dbs.member_usdt.aggregate(pipeline))
+    total_usdt = result[0]['total'] if result else 0
+
+    return jsonify({'total_usdt': total_usdt})
 
 # @app.route('/member_dashboard',methods=['GET', 'POST'])
 # def member_dashboard():
@@ -1196,7 +1224,76 @@ def admin_login():
 
 @app.route('/memberdousdt', methods=['GET', 'PSOT'])
 def memberdousdt():
-    return render_template('memberdousdt.html')
+    if 'account' in session:
+        # 处理 POST 请求
+        if request.method == 'POST':
+            account = session.get('account', 'DefaultAccount')
+            usdt = session.get('USDT', 'DefaultAccount')
+            usdtcount = request.form.get('usdtcount')
+            tradecode = request.form.get('tradecode')
+            tradetime = request.form.get('tradetime')
+            outtime = request.form.get('outtime')
+            usdtout = request.form.get('usdtout')
+            usdtaddress = request.form.get('usdtaddress')
+
+            if not request.form.get('id'):
+                dbs.usdtPlus.insert_one({
+                    'account': account,
+                    'usdtcount': usdtcount,
+                    'tradecode': tradecode,
+                    'tradetime': tradetime,
+                    'usdt': usdt,
+                }),
+                dbs.usdtminus.insert_one({
+                    'account': account,
+                    'outtime': outtime,
+                    'usdtout': usdtout, 
+                    'usdtaddress': usdtaddress, 
+                }),
+
+              
+            else:
+                dbs.usdtPlus.update_one(
+                    {'_id': ObjectId(request.form.get('id'))},
+                    {'$set': {
+                        'account': account,
+                        'usdtcount': usdtcount,
+                        'tradecode': tradecode,
+                        'tradetime': tradetime,
+                        'usdt': usdt,
+                    }},
+                )
+                dbs.usdtminus.update_one(
+                    {'_id': ObjectId(request.form.get('id'))},
+                    {'$set': {
+                    'account': account,
+                    'outtime': outtime,
+                    'usdtout': usdtout, 
+                    'usdtaddress': usdtaddress, 
+                    }},
+                )
+
+            return redirect(url_for('memberdousdt'))
+        
+        # 处理 GET 请求
+        else:
+            if request.args.get('methods') == 'delete':
+                dbs.usdtPlus.delete_one({'_id': ObjectId(request.args.get('id'))})
+                dbs.usdtminus.delete_one({'_id': ObjectId(request.args.get('id'))})
+
+
+            product_data = list(dbs.usdtPlus.find())
+            withdraw_data = list(dbs.usdtminus.find())  # 获取 usdtminus 数据
+
+
+            # 将每个文档中的 ObjectId 转换为字符串
+            for item in product_data + withdraw_data:
+                item['_id'] = str(item['_id'])
+
+            return render_template('memberdousdt.html', product_data=json.dumps(product_data), withdraw_data=json.dumps(withdraw_data))
+
+    else:
+        return redirect(url_for('member_dashboard'))
 
 
 @app.route('/rule1', methods=['GET', 'PSOT'])
@@ -1217,42 +1314,64 @@ def member_logout():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        member_data = []
         account = request.form["account"]
         password = request.form["password"]
         session['account'] = account
 
-        member_find = dbs.bittop_member.find({
-            'account': account,
-        })
+        # 检查 bittop_member 集合
+        member = dbs.bittop_member.find_one({'account': account})
 
-        for doc in member_find:
-            member_data.append(doc)
+        # 如果用户在 bittop_member 集合中
+        if member:
+            # ... 进行密码校验等操作 ...
+            password_str = password + member['salt']
+            user_password = hashlib.sha1(password_str.encode('utf-8')).hexdigest()
+            if member['password'] == user_password:
+                # 设置会话变量
+                session.permanent = True
+                session['name'] = member['name']
+                session['id'] = str(member['_id'])
+                session['USDT'] = member['USDT']
+                session['invitedCode'] = member['invitedCode']
+                # 重定向到会员仪表盘
+                return redirect('member_dashboard')
 
-        if len(member_data) <= 0:
-            return redirect('login')
+        # 检查 bittop_admin 集合
+        admin = dbs.bittop_admin.find_one({'account': account})
 
-        password_str = password + member_data[0]['salt']
-        user_password = hashlib.sha1(password_str.encode('utf-8'))
+        # 如果用户在 bittop_admin 集合中
+        if admin:
+            # ... 进行密码校验等操作 ...
+            password_str = password + admin['salt']
+            user_password = hashlib.sha1(password_str.encode('utf-8')).hexdigest()
+            if admin['password'] == user_password:
+                # 设置会话变量，可能需要不同的会话变量
+                session.permanent = True
+                session['name'] = admin['name']
+                session['id'] = str(admin['_id'])
+                # 重定向到管理员仪表盘
+                return redirect('admin_dashboard')
 
-        if member_data[0]['password'] == user_password.hexdigest() and member_data[0]['is_verify'] == 1:
-            session.permanent = True
-            session['name'] = member_data[0]['name']
-            session['id'] = str(member_data[0]['_id'])
-            session['USDT'] = member_data[0]['USDT']
-            session['invitedCode'] = member_data[0]['invitedCode']
-
-            return redirect('member_dashboard')
-        else:
-            return redirect('login')
+        # 如果用户既不在 bittop_member 中也不在 bittop_admin 中
+        return redirect('login')
 
     else:
+        # 如果用户已登录，则根据角色重定向
         if 'id' in session:
-            return redirect('member_dashboard')
+            # 假设您有一个方式来确定用户的角色
+            if is_member(session['id']):
+                return redirect('member_dashboard')
+            elif is_admin(session['id']):
+                return redirect('admin_dashboard')
         return render_template('login.html')
 
+def is_member(user_id):
+    # 实现检查用户是否为会员的逻辑
+    pass
 
-
+def is_admin(user_id):
+    # 实现检查用户是否为管理员的逻辑
+    pass
 
 @app.route('/admin_product', methods=['GET', 'POST'])
 def admin_product():
@@ -1328,12 +1447,12 @@ def member_product():
             # if potp_result == True:
                 account = session.get('account', 'DefaultAccount')
                 usdt = session.get('USDT', 'DefaultAccount')
-                sell_usdt = request.form['sell_usdt']
+                sell_usdt = float(request.form['sell_usdt'])
                 price = float(request.form['price'])
                 total = request.form['total']
                 min_limit = request.form['min_limit']
                 max_limit = request.form['max_limit']
-                offtime = request.form['offtime']
+                off_time = datetime.now() + timedelta(hours=6)  # 假设24小时后下架
 
                 if request.form['id'] == '':
                     dbs.member_usdt.insert_one(
@@ -1344,7 +1463,8 @@ def member_product():
                             'total': total,
                             'min_limit': min_limit,
                             'max_limit': max_limit,
-                            'offtime':offtime,
+                            'offtime': off_time,
+
                             'is_buy': False
                         }
                     )
@@ -1360,7 +1480,7 @@ def member_product():
                                 'total': total,
                                 'min_limit': min_limit,
                                 'max_limit': max_limit,
-                                'offtime':offtime,
+                                'offtime': off_time
                             }
                         }
                     )
@@ -1383,6 +1503,7 @@ def member_product():
                     doc['is_buy'] = 1
                 else:
                     doc['is_buy'] = 0
+                doc['offtime'] = doc['offtime'].strftime('%Y-%m-%d %H:%M:%S') if 'offtime' in doc else '未设置'
                 product_data.append(doc)
             return render_template('member_product.html', product_data=product_data)
     else:
@@ -1527,8 +1648,9 @@ def member_dashboard():
             except Exception as e:
                 print("Error inserting data:", e)
 
-        return redirect(url_for('member_dashboard'))
-
+            return redirect(url_for('member_dashboard'))
+ 
+ 
     # 从数据库获取数据
     specific_account = session.get('account', '')
     cards = list(dbs.bankcard.find({"account": specific_account}))
@@ -1563,6 +1685,78 @@ def generate_qr_code(invited_code):
     img_path = os.path.join(app.root_path,'public', 'image', 'qrcodes', f"{invited_code}_qrcode.png")
     img.save(img_path)
 
+
+
+@app.route('/recharge', methods=['POST']) # 确保使用POST方法
+def recharge():
+            tradetime = request.form.get('tradetime')
+            tradecode = request.form.get('tradecode')
+            usdtcount = request.form.get('usdtcount')
+            account = session['account'] # 假设会员账号存储在session中  
+            if usdtcount and tradecode and account:
+                try:
+            # 插入数据到数据库
+                    dbs.usdtPlus.insert_one({
+                    'account': account,
+                    'tradetime': tradetime,
+                    'usdtcount': usdtcount,
+                    'tradecode': tradecode,
+                    'is_verify': 0,
+
+            })
+                except Exception as e:
+                    print("Error inserting data:", e)
+
+            return redirect(url_for('member_dashboard'))
+
+@app.route('/submit-usdt', methods=['POST'])
+def submit_usdt():
+    data = request.json
+    account = session['account']  # 假设会员账号存储在session中
+    if data.get('usdtcount') and data.get('tradecode') and account:
+        try:
+            # 插入数据到数据库
+            dbs.usdtPlus.insert_one({
+                'account': account,
+                'tradetime': data.get('tradetime'),
+                'usdtcount': data.get('usdtcount'),
+                'tradecode': data.get('tradecode'),
+                'is_verify': 0,
+            })
+        except Exception as e:
+            print("Error inserting data:", e)
+            return {"status": "error", "message": str(e)}, 500
+
+    return {"status": "success"}
+
+@app.route('/submit-withdraw', methods=['POST'])
+def submit_withdraw():
+    data = request.json
+    account = session['account']  # 假设会员账号存储在session中
+    if data.get('usdtout') and data.get('usdtaddress') and account:
+        try:
+            # 插入数据到数据库
+            dbs.usdtminus.insert_one({
+                'account': account,
+                'outtime': data.get('outtime'),
+                'usdtout': data.get('usdtout'),
+                'usdtaddress': data.get('usdtaddress'),
+                'is_verify': 0,
+            })
+            return {"status": "success"}
+        except Exception as e:
+            print("Error inserting data:", e)
+            return {"status": "error", "message": str(e)}, 500
+    return {"status": "error", "message": "Missing data"}, 400
+@app.route('/get-withdraw-data')
+def get_withdraw_data():
+    try:
+        newWithdrawal = list(dbs.usdtminus.find({}, {'_id': 0}))
+        print("Retrieved withdrawData:", newWithdrawal)  # 打印检索到的数据
+        return jsonify(newWithdrawal)
+    except Exception as e:
+        print("Error retrieving data:", e)
+        return jsonify([]), 500
 
 # @app.route('/profile', methods=['GET', 'POST'])
 # def profile():
@@ -1755,6 +1949,22 @@ def register():
         return render_template('success.html')
     else:
         return render_template('register.html')
+    
+
+def verify_user(account):
+    # 检索用户记录
+    user = dbs.bittop_member.find_one({'account': account})
+    if user and user['is_verify'] == 0:
+        # 更新 is_verify
+        dbs.bittop_member.update_one({'account': account}, {'$set': {'is_verify': 1}})
+        # 找到相关的 usdtPlus 记录
+        recharge_record = dbs.usdtPlus.find_one({'account': account, 'is_verify': 0})
+        if recharge_record:
+            usdtcount = recharge_record['usdtcount']
+            # 更新 USDT 字段
+            dbs.bittop_member.update_one({'account': account}, {'$inc': {'USDT': usdtcount}})
+            # 更新 usdtPlus 记录的 is_verify
+            dbs.usdtPlus.update_one({'account': account, 'is_verify': 0}, {'$set': {'is_verify': 1}})
 
 
 @app.route('/api/<name>', methods=['GET', 'POST'])
@@ -1808,6 +2018,7 @@ def api(name):
     })
   else:
     return redirect(url_for('login'))
+
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False, port=5858)

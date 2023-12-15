@@ -105,8 +105,8 @@
                 <th>姓名</th>
                 <th>账号</th>
                 <th>会员等级</th>
-                <th>钱包地址</th>
-                <th>USDT余额</th>
+                <th>邀请人</th>
+                <th>USDT</th>
                 <th>功能</th>
 
               </tr>
@@ -115,9 +115,9 @@
               <tr v-for="(item, index) in member_data" :key="item._id">
                 <td>[[ item.name ]]</td>
                 <td>[[ item.account ]]</td>
-                <td>[[ item.level ]]</td>
-                <td>[[ item.real_coin ]]</td>
-                <td>[[ item.coin ]]</td>
+                <td>[[ item.display_name ]]</td>
+                <td>[[ item.invitedCode ]]</td>
+                <td>[[ item.USDT ]]</td>
                 <td>
                   <a @click="this.tempMember = { ...item }, modalControl(true)" href="javascript:;">编辑</a>
                   <a  class="delete" :href="`/admin_member?methods=delete&id=${[[ item._id ]]}`">删除</a>
