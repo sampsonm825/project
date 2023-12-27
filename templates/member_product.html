@@ -177,7 +177,8 @@
                 <th>最低单笔限额</th>
                 <th>最高单笔限额</th>
                 <th>自动下架时间</th>
-                <th>功能</th>
+                <th>收款银行</th>
+                <th>状态</th>
               </tr>
             </thead>
             <tbody>
@@ -188,10 +189,12 @@
                 <td>[[ item.total ]]</td>
                 <td>[[ item.min_limit ]]</td>
                 <td>[[ item.max_limit ]]</td>
-                <td>[[ item.offtime ]]</td>
+                <td>[[ item.time ]]</td>
+                <td>[[ item.P_bank ]]</td>
                 <td>
-                  <a @click="tempProduct = {...item}, modalControl(true, '编辑')" href="javascript:;">编辑</a>
-                  <a class="delete" :href="`/member_product?methods=delete&id=${item._id}`">刪除</a>
+                  <span v-if="item.is_buy === 0">已上架</span>
+                  <span v-else-if="item.is_buy === 1">处理中</span>
+                  <span v-else-if="item.is_buy === 2">已完成</span>
                 </td>
               </tr>
             </tbody>
@@ -205,13 +208,14 @@
           <table>
             <thead>
               <tr>
-                <th>会员名称</th>
+                <th>会员账号</th>
                 <th>USDT数量</th>
                 <th>汇率(单价)</th>
                 <th>总价(CNY)</th>
                 <th>最低单笔限额</th>
                 <th>最高单笔限额</th>
                 <th>自动下架时间</th>
+
               </tr>
             </thead>
             <tbody>
@@ -222,7 +226,8 @@
                 <td>[[ item.total ]]</td>
                 <td>[[ item.min_limit ]]</td>
                 <td>[[ item.max_limit ]]</td>
-                <td>[[ item.offtime ]]</td>
+                <td>[[ item.time ]]</td>
+
               </tr>
             </tbody>
           </table>
@@ -252,14 +257,19 @@
           <label for="max_limit">最高单笔限额 :</label>
           <input type="text" name="max_limit" placeholder="最高单笔限额" v-model="tempProduct.max_limit">
         </div>
-        <!-- <div class="form-control">
-          <input type="text" name="offtime" placeholder="自动下架时间" v-model="tempProduct.offtime">
-        </div> -->
-        <!-- <div class="form-control">
-          <input type="text" name="potp" placeholder="Google OTP">
-        </div> -->
+        <input type="hidden" name="card_id" id="card_id">
+
+        <div class="form-control">
+          <label for="banklist">银行名称:</label>
+          <select id="banklist" name="banklist" v-model="selectedCardNumber">
+            <option v-for="card in bankcards" :value="card.cardnumber">
+                [[ card.bank ]]_[[ card.cardnumber.slice(-6) ]]
+            </option>
+        </select>
+        </div>
         <div class="button-group">
           <input type="hidden" name="id" v-model="tempProduct._id">
+
           <button @click="modalControl(false), tempProduct = {}" type="button" class="add_btn close ">取消</button>
           <button type="submit">[[ modal_title ]]</button>
         </div>
@@ -279,6 +289,8 @@
         is_modal: false,
         tempProduct: {},
         modal_title: '',
+        bankcards: [],  // 存储银行卡信息
+        selectedCardNumber: null,
       }
     },
     compilerOptions: {
@@ -320,6 +332,39 @@
   app.mount('#app')
 </script>
 <script>
-  console.log("Raw data:", '{{ product_data | tojson }}');  // 直接打印原始数据
+  console.log("Raw data:", '{{ product_data | default([]) | tojson }}');
 </script>
+<script>
+  function fetchBankCards() {
+    // 发送AJAX请求到后端API (替换为你的API URL)
+    fetch('/api/get_bank_cards').then(response => {
+      if (response.ok) {
+        return response.json();  // 解析JSON数据
+      } else {
+        throw new Error('Failed to fetch bank cards');
+      }
+    }).then(cards => {
+      updateBankCardList(cards);  // 使用银行卡数据更新下拉菜单
+    }).catch(error => {
+      console.error('Error fetching bank cards:', error);
+    });
+  }
+
+  function updateBankCardList(cards) {
+    const banklist = document.getElementById('banklist');
+    banklist.innerHTML = '';  // 清空现有选项
+
+    // 为每张银行卡创建一个option元素
+    cards.forEach(card => {
+      const option = document.createElement('option');
+      option.value = card.card_id;  // 将card_id设置为option的值
+      option.textContent = `${card.bank}_${card.cardnumber.slice(-6)}`;  // 显示银行名称和卡号后6位
+      banklist.appendChild(option);  // 将option添加到select中
+    });
+  }
+
+  // 页面加载完成时获取银行卡数据
+  document.addEventListener('DOMContentLoaded', fetchBankCards);
+</script>
+
 {% endblock %}

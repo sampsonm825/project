@@ -99,7 +99,7 @@
 {% block main %}
 <div class="head-title">
     <div class="left">
-      <h1>紅利申請列表</h1>
+      <h1>充值/提领申請列表</h1>
     </div>
   </div>
   <div class="table-data">
@@ -108,29 +108,31 @@
         <table>
           <thead>
             <tr>
-              <th>會員帳號</th>
-              <th>會員名稱</th>
-              <th>申請提現紅利數量</th>
-              <th>提現進度</th>
+              <th>会员账号</th>
+              <th>充值数量</th>
+              <th>提领数量</th>
+              <th>申请时间</th>
+              <th>处理进度</th>
               <th>功能</th>
             </tr>
           </thead>
           <tbody>
-            {% for item in bonus_data %}
+            {% for item in usdt_data %}
             <tr>
-              <td>{{ item.m_account }}</td>
-              <td>{{ item.m_name }}</td>
-              <td>{{ item.pay_bonus }}</td>
+              <td>{{ item.account }}</td>
+              <td>{{ item.usdtcount }}</td>
+              <td>{{ item.usdtout }}</td>
+              <td>{{ item.time }}</td>
               <td>
                 {% if item.status %}
-                  已處理
+                  已处理
                 {% else %}
-                  處理中
+                  处理中
                 {% endif %}
               </td>
               <td>
-                <a href="/admin_bonus?method=success&bId={{ item._id }}">確認提現</a>
-                <a class="delete" href="/admin_bonus?method=faild&bId={{ item._id }}">取消提現</a>
+                <a href="/admin_usdt?method=success&bId={{ item._id }}">确认</a>
+                <a class="delete" href="/admin_usdt?method=cancel&bId={{ item._id }}">取消</a>
               </td>
             </tr>
             {% endfor %}

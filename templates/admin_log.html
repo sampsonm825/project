@@ -71,9 +71,9 @@
       <table>
         <thead>
           <tr>
-            <th>姓名</th>
-            <th>订单号</th>
-            <th>交易U量</th>
+            <th>账号</th>
+            <th>变更USDT数量</th>
+            <th>交易类型</th>
             <th>USDT余额</th>
             <th>时间</th>
           </tr>
@@ -81,11 +81,11 @@
         <tbody>
           {% for item in record_data %}
           <tr>
-            <td>{{ item.m_name }}</td>
-            <td>{{ item.oId }}</td>
-            <td>{{ item.out_coin }}</td>
-            <td>{{ item.in_coin }}</td>
-            <td>{{ item.out_bonus }}</td>
+            <td>{{ record.account }}</td>
+            <td>{{ record.amount }}</td>
+            <td>{{ record.tradetype }}</td>
+            <td>{{ record.USDT }}</td>
+            <td>{{ record.time }}</td>
           </tr>
           {% endfor %}
         </tbody>

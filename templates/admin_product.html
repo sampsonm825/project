@@ -76,6 +76,33 @@
     background-color: rgb(60, 60, 122);
   }
 
+
+  table tbody tr td a,
+  table tbody tr td button {
+    background-color: #004406;
+    padding: 4px 10px;
+    color: #fff;
+    border-radius: 4px;
+    opacity: .8;
+    transition: opacity .3s;
+    display: block;
+    margin-bottom: 10px;
+    text-align: center;
+    /* 确保文本居中 */
+    text-decoration: none;
+    /* 去除下划线 */
+    border: none;
+    /* 去除边框 */
+    cursor: pointer;
+    /* 鼠标悬停时显示指针 */
+  }
+
+  table tbody tr td a:hover,
+  table tbody tr td button:hover {
+    opacity: 1;
+    /* 鼠标悬停时不透明度变为1 */
+  }
+
   td a {
     display: block;
     margin: 0 auto;
@@ -150,6 +177,43 @@
   [v-cloak] {
     display: none !important;
   }
+
+  .button-container {
+    display: flex;
+    /* 启用Flexbox */
+    justify-content: start;
+    /* 水平对齐方式 */
+    gap: 10px;
+    /* 按钮之间的间隔 */
+  }
+
+  .button-container button {
+    background-color: #3C91E6;
+    padding: 4px 10px;
+    color: #fff;
+    border-radius: 4px;
+    opacity: .8;
+    transition: opacity .3s;
+    border: none;
+    /* 去除边框 */
+    cursor: pointer;
+    /* 鼠标悬停时显示指针 */
+    text-decoration: none;
+    /* 去除下划线 */
+  }
+
+  .button-container button:hover {
+    opacity: 1;
+    /* 鼠标悬停时不透明度变为1 */
+  }
+
+  .thumbnail {
+    width: 50px;
+    /* 或者其他尺寸 */
+    height: auto;
+    display: block;
+    margin-top: 10px;
+  }
 </style>
 {% endblock %}
 
@@ -161,69 +225,52 @@
     </div>
   </div>
   <div class="product">
-    <a @click="modalControl(true, '新增'), tempProduct = {}" class="open add_btn" href="javascript:;">新增订单</a>
     <div class="table-data">
       <div class="order">
         <div class="scroll-table">
           <table>
             <thead>
               <tr>
-                <th>会员名称</th>
+                <th>会员账号</th>
                 <th>USDT数量</th>
                 <th>汇率(单价)</th>
                 <th>总价(CNY)</th>
                 <th>限额</th>
                 <th>自动下架时间</th>
+                <th>收款银行</th>
+
                 <th>功能</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(item, index) in product_data" :key="item._id">
-                <td>[[ item.name ]]</td>
-                <td>[[ item.desc ]]</td>
+                <td>[[ item.account ]]</td>
+                <td>[[ item.sell_usdt ]]</td>
                 <td>[[ item.price ]]</td>
-                <td>[[ item.factory_name ]]</td>
-                <td>[[ item.factory_bank ]]</td>
+                <td>[[ item.total ]]</td>
+                <td>[[ item.min_limit ]] ~ [[ item.max_limit ]]</td>
+                <td>[[ item.time ]]</td>
+                <td>[[ item.P_bank ]]</td>
+
                 <td>
-                  <a @click="tempProduct = {...item}, modalControl(true, '編輯')" href="javascript:;">編輯</a>
-                  <a class="delete" :href="`/admin_product?methods=delete&id=${[[item._id]]}`">刪除</a>
+                  <a class="confirm" @click="confirmOrder(item._id)" href="javascript:;">确认</a>
+                  <a class="delete" :href="`/admin_product?methods=delete&id=${item._id}`">刪除</a>
+                  <button @click="copyToClipboard(item.carddocument, item.total)">复制</button>
                 </td>
+
+
+                <td>
+                  <div class="button-container">
+                    <input type="file" @change="uploadImage($event, item._id)" />
+                    <img v-if="item.thumbnail" :src="item.thumbnail" class="thumbnail" />
+                  </div>
+                </td>
+
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
-    <div v-show="is_modal" class="add-modal" v-cloak>
-      <h2>[[ modal_title ]]订单</h2>
-      <form action="/admin_product" method="POST">
-        <div class="form-control">
-          <input type="text" name="desc" placeholder="USDT数量" v-model="tempProduct.desc">
-        </div>
-        <div class="form-control">
-          <input type="text" name="price" placeholder="汇率(单价)" v-model="tempProduct.price">
-        </div>
-        <div class="form-control">
-          <input type="text" name="factory_name" placeholder="总价(CNY)" v-model="tempProduct.factory_name">
-        </div>
-        <div class="form-control">
-          <input type="text" name="min_price" placeholder="最低单笔限额" v-model="tempProduct.factory_name">
-        </div>
-        <div class="form-control">
-          <input type="text" name="max_price" placeholder="最高单笔限额" v-model="tempProduct.factory_name">
-        </div>
-        <div class="form-control">
-          <input type="text" name="lastdate" placeholder="自动下架时间" v-model="tempProduct.factory_name">
-        </div>
-        <div class="form-control">
-          <input type="text" name="potp" placeholder="Google OTP">
-        </div>
-        <div class="button-group">
-          <input type="hidden" name="id" v-model="tempProduct._id">
-          <button @click="modalControl(false), tempProduct = {}" type="button" class="add_btn close ">取消</button>
-          <button type="submit">[[ modal_title ]]</button>
-        </div>
-      </form>
     </div>
   </div>
 </div>
@@ -232,10 +279,11 @@
   const app = Vue.createApp({
     data() {
       return {
-        product_data: '',
+        product_data: [],
         is_modal: false,
         tempProduct: {},
-        modal_title: ''
+        modal_title: '',
+        my_product_data: [],
       }
     },
     compilerOptions: {
@@ -243,24 +291,84 @@
     },
     methods: {
       modalControl(type, fun) {
-        type ? this.is_modal = true : this.is_modal = false
-        this.modal_title = fun
+        this.is_modal = type;
+        this.modal_title = fun;
         if (type && fun === '新增') {
-          this.setCurrentTime(); // 设置当前时间
-          this.tempProduct = {}; // 重置tempProduct
-      }
-    },
-    setCurrentTime() {
-        const now = new Date();
-        const formattedTime = now.toISOString().slice(0, 19).replace('T', ' ');
-        this.tempProduct.factory_bank = formattedTime;
+          this.setCurrentTime();
+          this.tempProduct = {};
+        }
       },
-    created() {
-      let tempProduct = '{{ product_data }}'
-      this.product_data = JSON.parse(tempProduct.replace(/&#39;/g, '"'))
+      confirmOrder(orderId) {
+        if (confirm('你确定要确认这个订单吗？')) {
+          fetch(`/confirm_order/${orderId}`, { method: 'POST' })
+            .then(response => {
+              console.log(response.status); // 打印状态代码
+              if (response.ok) {
+                alert('订单已确认');
+                this.fetchOrders();
+              } else {
+                alert('确认失败，请稍后再试');
+              }
+            })
+        
+        }
+      },
+  setCurrentTime() {
+    const now = new Date();
+    this.tempProduct.factory_bank = now.toISOString().slice(0, 19).replace('T', ' ');
+  },
+  copyToClipboard(carddocument, total) {
+    const cardInfo = Object.entries(carddocument).map(([key, value]) => `${key}: ${value}`).join('\n');
+    const textToCopy = `Card Info:\n${cardInfo}\nTotal: ${total}`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert('复制成功！');
+    }, (err) => {
+      console.error('复制失败: ', err);
+      alert('复制失败！');
+    });
+  },
+  previewImage(event, index) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.$set(this.my_product_data[index], 'thumbnail', e.target.result);
+        this.uploadImage(file, this.my_product_data[index]._id);
+      };
+      reader.readAsDataURL(file);
     }
+  },
+  uploadImage(event, id) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      // 创建表单数据
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('id', id);
 
-  }})
-  app.mount('#app')
+      // 发送到服务器 (假设你有一个用于处理图片上传的API)
+      fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('上传成功:', data);
+          // 可能需要更新本地数据来反映图片的上传
+        })
+        .catch(error => {
+          console.error('上传错误:', error);
+        });
+    }
+  },
+    },
+  created() {
+    // 假设 Flask 正确地传递了 product_data
+    this.product_data = JSON.parse('{{ product_data | tojson | safe }}');
+  },
+
+  });
+
+  app.mount('#app');
 </script>
 {% endblock %}

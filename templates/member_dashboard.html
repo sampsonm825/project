@@ -80,6 +80,25 @@
     /* 半透明背景 */
   }
 
+  .modal2 {
+    display: none;
+    /* 默认隐藏 */
+    position: fixed;
+    /* 固定位置 */
+    z-index: 1;
+    /* 在顶部 */
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* 宽度为整个屏幕宽 */
+    height: 100%;
+    /* 高度为整个屏幕高 */
+    overflow: auto;
+    /* 如果需要的话可以滚动 */
+    background-color: rgba(0, 0, 0, 0.4);
+    /* 半透明背景 */
+  }
+
   .modal-content {
     background-color: #fefefe;
     margin: auto;
@@ -249,7 +268,7 @@
     <i class='bx bxs-dollar-circle'></i>
     <span class="text">
       <p>USDT余额</p>
-      <h3>{{ session.USDT }}</h3>
+      <p>{{ member_data.USDT }}</p>
       <!-- 在 HTML 中使用添加的 CSS 类 -->
       <button onclick="recharge()" class="recharge-button">快速充值</button>
       <div id="recharge-modal" class="modal">
@@ -303,7 +322,7 @@
     <i class='bx bxs-dollar-circle'></i>
     <span class="text">
       <p>即时汇率</p>
-      <h3>7.35</h3>
+      <h3>{{ usdt_rate }}</h3>
     </span>
   </li>
   <li style="opacity: 0;">
@@ -328,8 +347,9 @@
     <i class='bx bxs-group'></i>
     <span class="text">
       <p>邀请码QRcode</p>
-      <h3><img src="{{ url_for('static', filename='image/qrcodes/{}_qrcode.png'.format(session.account)) }}"
-          alt="QR Code" style="width: 90px; height: 90px;"></h3>
+      <h3>
+        <img src="data:image/png;base64,{{ user_qr_code }}" alt="QR Code" style="width: 90px; height: 90px;">
+      </h3>
       <h4 id="invite-link">http://127.0.0.1:5858/register?invite={{ session.account }}</h4>
       <button onclick="copyLink()">复制注册网址</button>
     </span>
@@ -366,11 +386,11 @@
 <button id="add-card-button" class="recharge-button2">新增收款卡</button>
 
 <!-- 新增收款卡模态窗口，初始隐藏 -->
-<div id="add-card-modal" class="modal">
+<div id="add-card-modal" class="modal2">
 
   <div class="modal-content">
     <span class="close">&times;</span>
-    <form id="add-card-form" action="/member_dashboard" method="POST" onsubmit="refreshPage();">
+    <form id="add-card-form" action="/member_dashboard" method="POST">
       <!-- 表单内容 -->
       <h2>新增银行卡信息</h2>
       <div class="form-group">
@@ -590,12 +610,9 @@
           <td>{{ card.cardnumber }}</td>
           <td>{{ card.bankprovince }}</td>
           <td>
-            <form action="{{ url_for('member_dashboard') }}" method="post">
-              <input type="hidden" name="delete_id" value="{{ card._id }}">
-              <input type="submit" value="删除" style="font-size: 20px; font-weight: bold; color: black;">
-            </form>
+            <button onclick="deleteCard('{{ card.cardnumber }}')">删除</button>
           </td>
-          </td>
+          
         </tr>
         {% endfor %}
       </tbody>
@@ -603,7 +620,37 @@
   </body>
 
 </div>
+{{ member_data.some_field | default('') }}
+<script>
+  function deleteCard(cardNumber) {
+    // 阻止表单的默认提交行为
+    event.preventDefault();
 
+    // 发送删除请求到服务器
+    fetch('/delete_card', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'cardnumber=' + cardNumber  
+    })
+    .then(response => response.json())
+    .then(data => {
+      if(data.success) {
+        // 删除成功，刷新页面
+        window.location.reload();
+      } else {
+        // 处理错误
+        alert('删除失败');
+      }
+    })
+    .catch(error => {
+      // 处理错误
+      console.error('发送删除请求时发生错误:', error);
+      alert('发送删除请求时发生错误');
+    });
+  }
+</script>
 
 <script>
   function openEditModal(cardData) {
@@ -749,7 +796,7 @@
   }
 
   var modal = document.getElementById('recharge-modal');
-  var modal = document.getElementById('add-card-modal');
+  var modal2 = document.getElementById('add-card-modal');
 
   // 获取打开模态窗口的按钮元素
   var btn = document.querySelector('.recharge-button');
@@ -771,8 +818,46 @@
     if (event.target == modal) {
       modal.style.display = 'none';
     }
+    if (event.target == modal2) {
+      modal2.style.display = 'none';
+    }
+  
+  
   }
   
 </script>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 获取表单元素
+    var form = document.getElementById('add-card-form');
+    
+    // 监听表单的提交事件
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();  // 阻止表单的默认提交行为
+      
+      // 准备发送到服务器的数据
+      var formData = new FormData(form);
+      
+      // 发送数据到服务器
+      fetch(form.action, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if(response.ok) {
+          // 数据成功发送到服务器，刷新页面
+          window.location.reload();
+        } else {
+          // 处理错误
+          console.error('服务器响应错误');
+        }
+      })
+      .catch(error => {
+        // 处理错误
+        console.error('发送数据时发生错误:', error);
+      });
+    });
+  });
+</script>
 {% endblock %}

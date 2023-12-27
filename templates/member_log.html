@@ -72,20 +72,20 @@
         <thead>
           <tr>
             <th>账号</th>
-            <th>USDT</th>
+            <th>变更USDT数量</th>
             <th>交易类型</th>
             <th>USDT余额</th>
             <th>时间</th>
           </tr>
         </thead>
         <tbody>
-          {% for item in record_data %}
+          {% for record in record_data %}
           <tr>
-            <td>{{ item.account }}</td>
-            <td>{{ item.oId }}</td>
-            <td>{{ item.tradetype }}</td>
-            <td>{{ item.USDT }}</td>
-            <td>{{ item.time }}</td>
+            <td>{{ record.account }}</td>
+            <td>{{ record.amount }}</td>
+            <td>{{ record.tradetype }}</td>
+            <td>{{ record.USDT }}</td>
+            <td>{{ record.time }}</td>
           </tr>
           {% endfor %}
         </tbody>

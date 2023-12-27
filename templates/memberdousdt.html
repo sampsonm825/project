@@ -297,6 +297,41 @@
     animation-duration: 0.4s
   }
 
+  .error-modal {
+    position: fixed; /* 固定位置，始终显示在屏幕中央 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px; /* 弹窗宽度 */
+    padding: 20px; /* 内边距 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    background-color: #ffdddd; /* 背景颜色 */
+    border: 1px solid #ff5555; /* 边框 */
+    border-radius: 10px; /* 边框圆角 */
+    text-align: center; /* 文本居中 */
+    z-index: 1000; /* 确保弹窗在其他内容上方 */
+  }
+
+  .error-modal p {
+    color: #000000; /* 文本颜色 */
+    margin: 10px 0; /* 段落间距 */
+    font-size: 16px; /* 字体大小 */
+  }
+
+  .error-modal button {
+    background-color: #ff5555; /* 按钮背景颜色 */
+    color: white; /* 按钮文字颜色 */
+    border: none; /* 无边框 */
+    padding: 10px 20px; /* 按钮内边距 */
+    text-align: center; /* 文本居中 */
+    text-decoration: none; /* 无文本装饰 */
+    display: inline-block; /* 行内块显示 */
+    font-size: 16px; /* 字体大小 */
+    margin: 4px 2px; /* 外边距 */
+    cursor: pointer; /* 鼠标光标样式 */
+    border-radius: 5px; /* 按钮边框圆角 */
+  }
+
   /* Add Animation */
   @keyframes animatetop {
     from {
@@ -309,6 +344,7 @@
       opacity: 1
     }
   }
+  
 
 
   [v-cloak] {
@@ -380,6 +416,7 @@
                 <th>USDT数量</th>
                 <th>交易码</th>
                 <th>交易完成时间</th>
+                <th>申请时间</th>
                 <th>功能</th>
               </tr>
             </thead>
@@ -389,9 +426,10 @@
                 <td>[[ item.usdtcount ]]</td>
                 <td>[[ item.tradecode ]]</td>
                 <td>[[ item.tradetime ]]</td>
+                <td>[[ item.time ]]</td>
                 <td>
-                  <a @click="tempProduct = {...item}, modalControl(true, '编辑')" href="javascript:;">编辑</a>
-                  <a class="delete" :href="`/memberdousdt?methods=delete&id=${item._id}`">删除</a>
+                  <span v-if="item.status">已处理</span>
+                  <span v-else>处理中</span>
                 </td>
               </tr>
             </tbody>
@@ -439,15 +477,15 @@
           <label for="usdtaddress">提领地址</label>
           <input type="text" id="usdtaddress" name="usdtaddress" v-model="withdrawProduct.usdtaddress" required>
         </div>
-        <div class="form-control">
-          <label for="outtime">提领申请时间</label>
-          <input type="text" id="outtime" name="outtime" v-model="withdrawProduct.outtime" required>
-        </div>
         <div class="button-group">
           <button type="button" @click="modalControlWithdraw(false)">取消</button>
           <button type="submit">提交</button>
         </div>
       </form>
+      <div v-if="showErrorModal" class="error-modal">
+        <p>{{ errorMessage }}</p>
+        <button @click="showErrorModal = false">提领数量不能大于目前能使用的余额</button>
+      </div>
     </div>
     <div class="table-data">
       <div class="order">
@@ -467,10 +505,10 @@
                 <td>[[ item.account ]]</td>
                 <td>[[ item.usdtout ]]</td>
                 <td>[[ item.usdtaddress ]]</td>
-                <td>[[ item.outtime ]]</td>
+                <td>[[ item.time ]]</td>
                 <td>
-                  <a @click="withdrawProduct = {...item}, modalControlWithdraw(true, '编辑')" href="javascript:;">编辑</a>
-                  <a class="delete" :href="`/memberdousdt?methods=delete&id=${item._id}&collection=usdtminus`">删除</a>
+                  <span v-if="item.status">已处理</span>
+                  <span v-else>处理中</span>
                 </td>
               </tr>
             </tbody>
@@ -506,9 +544,12 @@
 
         tempProduct: {},  // 初始化临时产品对象
         withdrawProduct: {},
-        modal_title: ''   // 如果您的模板中还用到了 modal_title，也应在此定义
-      }
+        modal_title: '', // 如果您的模板中还用到了 modal_title，也应在此定义
+        showErrorModal: false,
+        errorMessage: '',
+      };
     },
+
     compilerOptions: {
       delimiters: ["[[", "]]"]
     },
@@ -543,6 +584,14 @@
             },
             body: JSON.stringify(this.withdrawProduct)
           });
+          if (!response.ok) {
+            const errorData = await response.json();
+            // 显示错误消息
+            this.errorMessage = errorData.error;
+            this.showErrorModal = true;
+            return;
+          }
+
           const result = await response.json();
           console.log('提交成功:', result);
 
